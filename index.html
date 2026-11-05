@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<!-- saved from url=(0033)https://www.ttcstem.com/it/10/04/ -->
+<html lang="bg"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Железопътният макет – алгоритми и блок-схеми</title>
+<style>
+:root{
+  --felt:#1c3a29; --ink:#1d2430; --muted:#5a6170; --paper:#fbf6e8; --paper2:#f3ead2; --line:#d8cdb0; --rad:14px;
+  --font:"Segoe UI",Roboto,Arial,sans-serif; --hfont:"Arial Narrow","Roboto Condensed","Segoe UI",Arial,sans-serif;
+  --board:#14284a; --boardInk:#f4efe1; --sig:#d7263d; --brass:#f2b632; --brassDk:#9c6f0c; --brassSoft:#f2b63266;
+  --teal:#1b6f72; --ok:#2e7d4f; --okBg:#e2f3e7; --okInk:#16432a; --warn:#b4361f; --warnBg:#fde8e1; --warnInk:#5e1b0e;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+html{background:var(--felt)}
+body{color:var(--ink);font:17px/1.55 var(--font);min-height:100vh;overflow-x:hidden;
+  background:var(--felt);background-image:radial-gradient(#ffffff0a 1px,transparent 1.5px),radial-gradient(#0000001a 1px,transparent 1.5px),linear-gradient(160deg,#21452f,#16301f);background-size:7px 7px,11px 11px,100% 100%;background-attachment:fixed}
+button{font:inherit;color:inherit}
+img,svg,canvas{max-width:100%}
+.mono{font-family:Consolas,"Courier New",monospace}
+header.top{position:sticky;top:0;z-index:30;background:var(--board);color:var(--boardInk);border-bottom:5px solid var(--brass);box-shadow:0 4px 16px #0009}
+.hin{max-width:1260px;margin:0 auto;padding:8px 16px;display:flex;gap:12px;align-items:center}
+.logo{font-family:var(--hfont);font-weight:800;white-space:nowrap;letter-spacing:.08em;text-transform:uppercase;font-size:17px;border:2px solid var(--boardInk);border-radius:6px;padding:2px 10px}
+.nav{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
+.nav::-webkit-scrollbar{display:none}
+@media(max-width:780px){.hin{flex-wrap:wrap;row-gap:6px}.nav{order:3;flex-basis:100%}.logo{flex:1;white-space:normal;font-size:14px}}
+.pill{flex:none;border:2px solid #ffffff30;border-radius:6px;padding:3px 10px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;background:#ffffff10;color:var(--boardInk);font-family:var(--hfont);letter-spacing:.03em}
+.pill.done{border-color:#6fd39a}
+.pill.done::before{content:"✓ "}
+.pill.cur{background:var(--brass);color:#1d1a10;border-color:var(--brass)}
+.pill.lock{opacity:.4;cursor:not-allowed}
+.reset{flex:none;font-size:14px;font-weight:700;border:2px solid currentColor;background:transparent;color:var(--boardInk);border-radius:8px;padding:5px 12px;cursor:pointer}
+.reset:hover{background:#ffffff22}
+main{max-width:1260px;margin:0 auto;padding:18px 16px 90px}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+@media(max-width:980px){.wrap{grid-template-columns:minmax(0,1fr)}}
+.stage{min-width:0;background:var(--paper);border-radius:var(--rad);padding:22px 24px;box-shadow:0 0 0 4px #3b2a17,0 0 0 8px #7a5a33,0 22px 44px #000a;margin:8px}
+@media(max-width:520px){.stage{padding:16px 12px;margin:8px 4px}}
+.journal{position:sticky;top:74px;max-height:calc(100vh - 92px);overflow:auto;overscroll-behavior:contain;background:#fffdf5;color:var(--ink);border-radius:var(--rad);min-width:0;margin:8px 0;box-shadow:0 18px 40px #0008;border-top:10px solid var(--sig)}
+@media(max-width:980px){.journal{position:static;max-height:62vh}}
+.jh{position:sticky;top:0;z-index:2;font-weight:800;padding:11px 16px;background:#fffdf5;border-bottom:2px dashed var(--line);font-family:var(--hfont);letter-spacing:.05em;text-transform:uppercase;color:var(--board)}
+.jb{padding:12px 14px 16px;display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.jb .empty{margin:4px 2px;font-size:15px;opacity:.75}
+.ent{overflow-wrap:anywhere;border:2px solid var(--line);border-left:7px solid var(--teal);border-radius:8px;padding:8px 11px;font-size:15px;line-height:1.45;background:#fff}
+.ent .t{display:block;margin-bottom:3px;font-size:14px;letter-spacing:.04em;font-family:var(--hfont);text-transform:uppercase;color:var(--board)}
+.ent.newest{border-color:var(--brass);border-left-color:var(--sig);box-shadow:0 0 0 3px var(--brassSoft)}
+.ent.new{animation:glowNew 2.4s ease-out}
+@keyframes glowNew{0%{box-shadow:0 0 0 9px var(--brass)}100%{box-shadow:0 0 0 3px var(--brassSoft)}}
+.nb-new{display:inline-block;margin-left:6px;font-size:10px;font-weight:900;letter-spacing:.08em;padding:1px 7px;border-radius:4px;background:var(--sig);color:#fff;vertical-align:middle;animation:nbp 1.2s ease-in-out 3}
+@keyframes nbp{50%{transform:scale(1.18)}}
+.nbj{position:fixed;right:12px;bottom:12px;z-index:25;display:none;border:0;border-radius:999px;padding:10px 16px;font-weight:800;background:var(--brass);color:#1d1a10;box-shadow:0 6px 18px #0006;cursor:pointer}
+@media(max-width:980px){.nbj{display:block}}
+.nbj.ping{animation:nbp .6s 2}
+.kicker{font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--sig);font-family:var(--hfont)}
+h1,h2,h3{font-family:var(--hfont);letter-spacing:.01em}
+h2{margin:2px 0 8px;font-size:29px;line-height:1.15;color:var(--board)}
+h3{margin:18px 0 6px;font-size:21px;color:var(--board)}
+.lead{margin:0 0 14px;color:var(--muted)}
+.small{font-size:14px;color:var(--muted)}
+.btn{font-weight:800;border:0;border-radius:9px;padding:10px 18px;cursor:pointer;background:var(--brass);color:#1d1a10;box-shadow:0 3px 0 var(--brassDk);touch-action:manipulation}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--brassDk)}
+.btn.alt{background:var(--board);color:#fff;box-shadow:0 3px 0 #000}
+.btn.ghost{background:transparent;box-shadow:none;border:2px solid currentColor}
+.btn.red{background:var(--sig);color:#fff;box-shadow:0 3px 0 #7d1220}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.next{display:flex;justify-content:flex-end;margin-top:22px}
+.say{margin-top:14px;border-radius:10px;padding:10px 14px;display:none;background:var(--okBg);border:2px solid var(--ok);color:var(--okInk)}
+.say.show{display:block;animation:pop .3s}
+.say.warn{background:var(--warnBg);border-color:var(--warn);color:var(--warnInk)}
+@keyframes pop{from{transform:scale(.97);opacity:0}to{transform:none;opacity:1}}
+input[type=text],textarea,select{font:inherit;font-size:16px;border:2px solid var(--line);background:#fff;color:#1d2330;border-radius:8px;padding:6px 9px;max-width:100%}
+input:focus,textarea:focus,select:focus{outline:3px solid var(--brassSoft);border-color:var(--brass)}
+.tip{border-left:6px solid var(--teal);background:#e6f2f1;border-radius:8px;padding:8px 12px;font-size:15.5px;margin:10px 0}
+.cur-card{border:2px dashed var(--brassDk);background:#fff8df;border-radius:10px;padding:8px 12px;font-size:15.5px;margin:10px 0}
+.cur-card b:first-child{color:var(--brassDk)}
+.hscroll{overflow-x:auto;max-width:100%}
+/* dispatcher */
+.op{display:flex;gap:12px;align-items:flex-start;background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px 14px;margin:6px 0 14px}
+.op .av{flex:none;width:50px;height:50px;border-radius:50%;background:var(--board);display:grid;place-items:center;font-size:27px;border:3px solid var(--brass)}
+.op b{color:var(--sig);font-family:var(--hfont);letter-spacing:.03em}
+.op p{margin:2px 0 0}
+/* intro */
+.hero{text-align:center;padding:18px 10px 10px}
+.hero h1{font-size:44px;line-height:1.05;margin:8px 0;color:var(--board);text-transform:uppercase;letter-spacing:.04em}
+.hero p{max-width:660px;margin:8px auto}
+.name-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:18px 0}
+.name-row input{min-width:0;width:260px}
+.heroSvg{width:100%;max-width:560px;height:auto;display:block;margin:0 auto}
+.confetti{position:fixed;top:-12px;width:9px;height:14px;z-index:60;animation:fall linear forwards;pointer-events:none}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg)}}
+@media(max-width:520px){main{padding:10px 8px 90px}h2{font-size:24px}.hero h1{font-size:31px}}
+/* stage 1 cards/wagons */
+.cards{display:flex;flex-wrap:wrap;gap:8px}
+.cmd{border:2px solid var(--line);background:#fff;border-radius:8px;padding:7px 11px;cursor:pointer;font-size:15.5px;text-align:left}
+.cmd:hover{border-color:var(--brass)}
+.cmd.used{opacity:.35}
+.consist{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch;min-height:76px;padding:10px;border-radius:10px;background:repeating-linear-gradient(90deg,#5b4128 0 6px,transparent 6px 18px) bottom/100% 7px no-repeat,#2c3b30;margin:10px 0}
+.loco{font-size:34px;line-height:1;align-self:center}
+.wagon{background:#c84a32;color:#fff;border-radius:6px 6px 3px 3px;padding:5px 9px 9px;font-size:14px;max-width:190px;cursor:pointer;position:relative;border:0;text-align:left;box-shadow:inset 0 -5px 0 #00000033}
+.wagon::after{content:"";position:absolute;left:10px;right:10px;bottom:-7px;height:8px;background:radial-gradient(circle at 6px 4px,#222 3.5px,transparent 4px) left/50% 100% no-repeat,radial-gradient(circle at calc(100% - 6px) 4px,#222 3.5px,transparent 4px) right/50% 100% no-repeat}
+.wagon i{font-style:normal;display:block;font-size:11px;opacity:.85}
+.wagon.bad{background:#7a2b2b;outline:3px solid #ffd27a}
+.wagon.go{background:var(--ok)}
+.empty-consist{color:#cfe0d3;font-size:15px;align-self:center}
+/* stage 2 */
+.objs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:640px){.objs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.obj{border:2px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;cursor:pointer;text-align:left;min-height:96px;display:flex;flex-direction:column;gap:2px}
+.obj .e{font-size:26px;line-height:1}
+.obj b{font-family:var(--hfont);font-size:16px;color:var(--board)}
+.obj span{font-size:13.5px;color:var(--muted);line-height:1.35}
+.obj.sel{border-color:var(--brass);box-shadow:0 0 0 3px var(--brassSoft)}
+.obj.ok{background:var(--okBg);border-color:var(--ok);cursor:default}
+.obj svg{width:92px;height:40px;align-self:flex-start;margin-top:4px}
+.shapes{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;padding:10px;border-radius:10px;background:#efe6cd}
+.shp{border:2px solid var(--line);background:#fff;border-radius:8px;padding:6px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12.5px;color:var(--muted);min-width:96px}
+.shp svg{width:90px;height:40px}
+.shp:hover{border-color:var(--brass)}
+/* stage 3 rules */
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:700px){.rules{grid-template-columns:minmax(0,1fr)}}
+.rule{border:2px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;position:relative}
+.rule h4{margin:0 0 4px;font-family:var(--hfont);font-size:18px;color:var(--board);letter-spacing:.03em}
+.rule h4 small{font-size:12px;color:var(--sig);letter-spacing:.1em;text-transform:uppercase;display:block}
+.rule p{margin:4px 0;font-size:15.5px}
+.rule .demo{background:#f5efdc;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:15px}
+.rule.fin{border-color:var(--ok)}
+.rule.fin::after{content:"✔ подписано";position:absolute;top:8px;right:10px;font-size:12px;font-weight:800;color:var(--ok)}
+.rule .btn{padding:7px 12px;font-size:15px}
+.lap{font-family:Consolas,monospace;font-weight:700}
+input[type=range]{width:100%;accent-color:var(--sig)}
+.sema{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.sema span{border-radius:6px;padding:3px 8px;font-size:13.5px;background:#ddd;color:#555}
+.sema span.on{background:var(--ok);color:#fff}
+.sema span.now{background:var(--brass);color:#1d1a10}
+/* stage 4 telegrams */
+.tgs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:700px){.tgs{grid-template-columns:minmax(0,1fr)}}
+.tg{border:2px solid var(--line);background:#fffef8;border-radius:6px;padding:10px 12px;cursor:pointer;text-align:left;position:relative;box-shadow:3px 3px 0 #e6dcc0;min-width:0}
+.tg .h{font-family:var(--hfont);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--sig)}
+.tg pre{margin:6px 0 0;white-space:pre-wrap;font:14.5px/1.45 Consolas,"Courier New",monospace;color:#1d2430;overflow-wrap:anywhere}
+.tg p{margin:6px 0 0;font-size:15.5px}
+.tg.sel{border-color:var(--brass);box-shadow:0 0 0 3px var(--brassSoft)}
+.tg.ok{border-color:var(--ok);cursor:default}
+.tg .to{display:none;margin-top:6px;font-weight:800;color:var(--ok);font-size:14px}
+.tg.ok .to{display:block}
+.tg .fcm svg{max-width:100%;height:auto}
+.rcps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}
+@media(max-width:700px){.rcps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.rcp{border:2px solid var(--board);background:#fff;border-radius:10px;padding:8px;cursor:pointer;text-align:center;font-size:14px;line-height:1.3}
+.rcp .e{font-size:28px;display:block}
+.rcp b{display:block;font-size:14.5px;color:var(--board)}
+.rcp.done{opacity:.5}
+/* track builder */
+.tray{display:flex;flex-wrap:wrap;gap:8px;padding:10px;border-radius:10px;background:#efe6cd;margin:10px 0}
+.piece{border:2px solid var(--line);background:#fff;border-radius:8px;padding:5px 9px 5px 6px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:15px}
+.piece svg{width:54px;height:26px;flex:none}
+.piece.used{opacity:.3}
+.seqbox{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:10px;border:2px dashed var(--line);min-height:60px;background:#fff}
+.seqit{display:flex;align-items:center;gap:8px;font-size:15px}
+.seqit .n{font-family:var(--hfont);font-weight:800;color:var(--sig);width:22px;text-align:right}
+.seqit button{border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;padding:1px 7px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:16px;align-items:start}
+@media(max-width:820px){.two{grid-template-columns:minmax(0,1fr)}}
+/* runner */
+.runner{border:3px solid var(--board);border-radius:12px;background:#f4f8f5;overflow:hidden;margin:12px 0}
+.rn-top{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:9px 12px;background:var(--board);color:var(--boardInk)}
+.rn-in{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.rn-in .lbl{font-family:var(--hfont);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass)}
+.rn-in label{display:flex;align-items:center;gap:4px;font-family:Consolas,monospace;font-weight:700}
+.rn-in input{width:70px;padding:4px 6px}
+.rn-ctr{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.rn-ctr .btn{padding:6px 12px;font-size:15px}
+.rn-chart{padding:6px 4px;background:#e9f1ec;background-image:linear-gradient(#d7e5dc 1px,transparent 1px),linear-gradient(90deg,#d7e5dc 1px,transparent 1px);background-size:24px 24px}
+.rn-chart svg{display:block;margin:0 auto;max-width:none}
+.rn-train{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-end;padding:8px 12px 12px;background:#2c3b30;min-height:58px}
+.rn-train .loco{font-size:28px}
+.rn-train .wg{background:#c84a32;color:#fff;border-radius:5px 5px 2px 2px;padding:3px 9px 6px;font:700 15px/1.2 Consolas,monospace;box-shadow:inset 0 -4px 0 #00000033}
+.rn-train .wg b{color:#ffd98a;margin-right:4px}
+.rn-train .wg.chg{animation:wgc .6s}
+@keyframes wgc{0%{transform:translateY(-6px);background:var(--brass);color:#1d1a10}}
+.rn-train .hint{color:#cfe0d3;font-size:14px;align-self:center}
+.rn-log{max-height:150px;overflow:auto;padding:8px 12px;font-size:15px;background:#fff;border-top:2px solid var(--line)}
+.rn-log div{padding:1px 0}
+.rn-log .o{font-weight:800;color:var(--board)}
+.rn-log .e{font-weight:800;color:var(--warn)}
+.rn-stat{display:flex;gap:14px;flex-wrap:wrap;padding:6px 12px;font-size:14px;background:#f3ead2;font-family:var(--hfont);letter-spacing:.03em}
+svg.fc text{font-family:"Segoe UI",Roboto,Arial,sans-serif}
+svg.fc .bk{stroke:#1d2430;stroke-width:2}
+svg.fc .bk.cur{stroke:var(--sig);stroke-width:4}
+svg.fc{height:auto}
+svg.fc .bk.vis{stroke:#1b6f72;stroke-width:3.5}
+svg.fc .bk.err{fill:#ffc9c0 !important;stroke:var(--sig);stroke-width:4}
+svg.fc .bdg{fill:var(--sig)}
+svg.fc .bdgt{fill:#fff;font-weight:800;font-size:12px}
+/* sorting yard */
+.yard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
+@media(max-width:640px){.yard{grid-template-columns:minmax(0,1fr)}}
+.trk{border:3px solid var(--board);border-radius:10px;background:#fff;padding:8px;min-height:90px;cursor:pointer}
+.trk h4{margin:0 0 6px;font-family:var(--hfont);color:var(--board);text-transform:uppercase;letter-spacing:.06em;font-size:16px}
+.trk .wagon{display:block;margin:4px 0 10px;max-width:none;cursor:default}
+.wx{border:0;background:#ffffff33;color:#fff;border-radius:4px;cursor:pointer;padding:0 6px;margin-left:4px}
+.cars{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.car{border:0;background:#c84a32;color:#fff;border-radius:6px;padding:7px 11px;cursor:pointer;font-size:15px}
+.car.sel{outline:3px solid var(--brass)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:#fff;border-radius:999px;padding:6px 13px;cursor:pointer;font-size:15.5px}
+.chip.on{background:var(--board);color:#fff;border-color:var(--board)}
+.tickets{display:flex;flex-wrap:wrap;gap:8px}
+.ticket{border:2px dashed var(--brassDk);background:#fff8df;border-radius:8px;padding:6px 12px;cursor:pointer;font:700 15px Consolas,monospace}
+.ticket.done{background:var(--okBg);border-color:var(--ok);border-style:solid}
+.ticket.done::after{content:" ✓";color:var(--ok)}
+/* studio */
+.ol{border-left:3px solid var(--line);padding-left:8px;margin:2px 0 2px 4px;display:flex;flex-direction:column;gap:4px}
+.on{display:flex;flex-wrap:wrap;align-items:center;gap:5px;background:#fff;border:2px solid var(--line);border-radius:8px;padding:4px 6px}
+.on .ic{width:40px;height:22px;flex:none}
+.on input{flex:1;min-width:110px;padding:3px 6px;font-family:Consolas,monospace;font-size:15px}
+.on input.sm{flex:none;width:58px;min-width:0}
+.on .mb{border:1px solid var(--line);background:#faf6ea;border-radius:5px;cursor:pointer;padding:1px 6px;font-size:14px}
+.on .fx{font-size:13.5px;color:var(--muted)}
+.blkw{display:flex;flex-direction:column;gap:3px}
+.brl{font-size:13px;font-weight:800;color:var(--teal);margin-left:6px;font-family:var(--hfont);letter-spacing:.05em}
+.plus{align-self:flex-start;border:2px dashed var(--teal);background:transparent;color:var(--teal);border-radius:6px;padding:0 8px;cursor:pointer;font-weight:800;font-size:14px}
+.pal{display:flex;flex-wrap:wrap;gap:5px;padding:6px;background:#e6f2f1;border-radius:8px}
+.pal button{border:1px solid var(--teal);background:#fff;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:14px}
+.tpls{display:flex;flex-wrap:wrap;gap:8px}
+.fld{display:grid;gap:4px;margin:8px 0}
+.fld>span{font-weight:700;font-size:15px}
+.pred{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:8px 0}
+.pred label{display:grid;gap:4px;font-weight:700;font-size:15px}
+.pred input{font:16px Consolas,monospace;padding:8px 10px;border:2px solid var(--line);border-radius:8px;min-width:0}
+.pred input.cond{width:170px}.pred input.num{width:110px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+canvas.out{width:100%;display:block;border-radius:10px;box-shadow:0 8px 24px #0004;background:#fff}
+.pseudo{white-space:pre-wrap;font:14.5px/1.5 Consolas,monospace;background:#14284a;color:#e9f0ff;border-radius:10px;padding:10px 12px;overflow-wrap:anywhere}
+/* B2 (390px): плаващият бутон на бележника не закрива главния бутон напред – компактен бутон, резервирана „лента“ вдясно на реда с „Напред“ и място в края на страницата */
+@media(max-width:960px){
+ html #nbj,html #nbfab{font-size:13px;padding:8px 12px;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+ html .next,html .nextrow{padding-right:166px}
+ html body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+}
+</style>
+</head>
+<body data-stage="intro">
+<header class="top"><div class="hin"><div class="logo">🚉 Макет „Хорезми“</div><nav class="nav" id="nav"><button class="pill cur" data-i="0" title="Старт">Старт</button><button class="pill lock" data-i="1" title="Първо завърши предишния етап">1 · Депото</button><button class="pill lock" data-i="2" title="Първо завърши предишния етап">2 · Знаците</button><button class="pill lock" data-i="3" title="Първо завърши предишния етап">3 · Правилникът</button><button class="pill lock" data-i="4" title="Първо завърши предишния етап">4 · Телеграфът</button><button class="pill lock" data-i="5" title="Първо завърши предишния етап">5 · Права линия</button><button class="pill lock" data-i="6" title="Първо завърши предишния етап">6 · Стрелките</button><button class="pill lock" data-i="7" title="Първо завърши предишния етап">7 · Обръщателят</button><button class="pill lock" data-i="8" title="Първо завърши предишния етап">8 · Моят макет</button></nav><button class="reset" id="reset" title="Изтрива напредъка и започва отначало">↺ Започни отначало</button></div></header>
+<main><div class="wrap"><section class="stage" id="stage"><div class="hero"><svg class="heroSvg" viewBox="0 0 560 210" aria-hidden="true"><rect x="0" y="0" width="560" height="210" rx="16" fill="#24492f"></rect><rect x="38" y="34" width="484" height="142" rx="70" fill="none" stroke="#6b4a2b" stroke-width="16"></rect><rect x="38" y="34" width="484" height="142" rx="70" fill="none" stroke="#c9b48a" stroke-width="16" stroke-dasharray="3 9"></rect><rect x="38" y="34" width="484" height="142" rx="70" fill="none" stroke="#2b2b2b" stroke-width="2"></rect><rect x="54" y="50" width="452" height="110" rx="54" fill="none" stroke="#2b2b2b" stroke-width="2" opacity=".5"></rect><path d="M280 105h-40" stroke="#f2b632" stroke-width="3"></path><rect x="200" y="78" width="72" height="34" rx="17" fill="#cfeedd" stroke="#14284a" stroke-width="2"></rect><text x="236" y="100" text-anchor="middle" font-size="13" fill="#14284a" font-family="Segoe UI,Arial">Начало</text><path d="M300 78l36 17-36 17-36-17z" fill="#fbd3cc" stroke="#14284a" stroke-width="2" transform="translate(28 0)"></path><text x="328" y="99" text-anchor="middle" font-size="12" fill="#14284a" font-family="Segoe UI,Arial">ДА / НЕ</text><g transform="translate(96 150)"><rect x="0" y="-22" width="58" height="26" rx="5" fill="#d7263d"></rect><rect x="40" y="-34" width="14" height="14" fill="#14284a"></rect><circle cx="12" cy="6" r="6" fill="#222"></circle><circle cx="44" cy="6" r="6" fill="#222"></circle><rect x="64" y="-18" width="44" height="22" rx="4" fill="#f2b632"></rect><circle cx="74" cy="6" r="5" fill="#222"></circle><circle cx="98" cy="6" r="5" fill="#222"></circle><text x="86" y="-2" text-anchor="middle" font-size="12" font-weight="700" fill="#1d1a10" font-family="Consolas,monospace">a=3</text><rect x="114" y="-18" width="44" height="22" rx="4" fill="#f2b632"></rect><circle cx="124" cy="6" r="5" fill="#222"></circle><circle cx="148" cy="6" r="5" fill="#222"></circle><text x="136" y="-2" text-anchor="middle" font-size="12" font-weight="700" fill="#1d1a10" font-family="Consolas,monospace">b=4</text></g><g transform="translate(430 40)"><rect x="0" y="0" width="70" height="40" fill="#fbf6e8" stroke="#14284a" stroke-width="2"></rect><path d="M-6 0l41-18 41 18z" fill="#d7263d"></path><text x="35" y="26" text-anchor="middle" font-size="11" font-weight="700" fill="#14284a" font-family="Arial Narrow,Arial">ГАРА</text></g></svg><div class="kicker" style="margin-top:12px">Информационни технологии · 10. клас · Урок 4</div><h1>Железопътният макет</h1><p>В мазето на читалището стои огромен железопътен макет – с гари, перони, стрелки, тунели и обръщателен кръг. Но влакът „Хорезми“ е <b>робот</b>: не разбира задачи, а само следва релсите, които му положиш.</p><p>Ще научиш правилата на компанията (свойствата на алгоритмите), ще наредиш знаците (блоковете на блок-схемата), ще поправиш дерайлирал влак и ще построиш <b>собствен макет</b>, който ще си запазиш като картинка.</p><div class="name-row"><input type="text" id="nm" maxlength="30" placeholder="Твоето име (или прякор)" value=""><button class="btn" id="go">Слагам фуражката 🚂</button></div><p class="small">8 гари · около 35 минути · без оценки – когато влакът дерайлира, просто го връщаш в депото и опитваш пак</p></div></section>
+<aside class="journal" id="jr"><div class="jh">📒 Бележникът на стрелочника</div><div class="jb" id="notes"><p class="empty">Тук стрелочникът записва всяко ново правило на макета – най-новото е най-отгоре.</p></div></aside></div></main>
+<button class="nbj ping" id="nbj">📒 Бележник (0)</button>
+<script>
+(function(){
+"use strict";
+const KEY='it10-04-maket';
+const DEFAULT_NAME='стрелочник';
+const NB_ICON='📒', NB_SHORT='Бележник', NB_EMPTY='Тук стрелочникът записва всяко ново правило на макета – най-новото е най-отгоре.';
+const CONFETTI=['#f2b632','#d7263d','#14284a','#2e7d4f','#fbf6e8'];
+const STAGES=[{id:'intro',t:'Старт'},{id:'depo',t:'1 · Депото'},{id:'znaci',t:'2 · Знаците'},{id:'pravila',t:'3 · Правилникът'},{id:'telegraf',t:'4 · Телеграфът'},{id:'linia',t:'5 · Права линия'},{id:'strelki',t:'6 · Стрелките'},{id:'krag',t:'7 · Обръщателят'},{id:'maket',t:'8 · Моят макет'}];
+const NOTES={
+ alg:['Алгоритъм','Последователност от елементарни действия и правила, изпълнението на които води до решаване на определена задача. Примери: готварска рецепта, инструкция за работа с уред, методът за решаване на квадратно уравнение. Често преди да се напише програма, първо се изработва алгоритъм.'],
+ horezmi:['Откъде идва думата','От латинизираното име на <b>Мохамед ибн Муса ал-Хорезми</b> – математик, астроном и географ, работил в Багдад в началото на IX в. Пръв представя алгебрата като самостоятелна наука („алгебра“ идва от книгата му „Ал-джабр вал-мукабала“). Преводът на негова книга на латински разпространява арабските цифри в Европа.'],
+ izisk:['Изисквания при съставяне','1) Редът на действията е описан <b>ясно и точно</b>. 2) Елементарните действия са <b>разбираеми</b> и съобразени с възможностите на изпълнителя. 3) Всяко <b>сложно действие</b> се представя като последователност от по-прости (елементарни).'],
+ blok:['Блок-схема','Визуално описание на алгоритъм: блокове (геометрични фигури с точно определен смисъл), свързани със стрелки. Когато един блок е изпълнен, работата продължава с блока, към който води излизащата стрелка.'],
+ startend:['Блок за начало и блок за край','Форма, подобна на елипса. От <b>началото</b> излиза една стрелка. Към <b>края</b> могат да сочат няколко стрелки, а от него не излиза нито една.'],
+ io:['Блокове за вход и изход','Успоредник. Описват входните данни и данните в момента на извеждането. Към тях може да сочи повече от една стрелка, но излиза само една.'],
+ proc:['Обработващ (функционален) блок','Правоъгълник – за безусловните указания (пресмятания, присвояване). Към него може да сочи повече от една стрелка, но излиза само една.'],
+ dec:['Логически блок','Ромб – проверка на условие. Влизат една или повече стрелки, излизат <b>две</b>: ако условието е изпълнено – по стрелката <b>ДА</b>, иначе – по <b>НЕ</b>.'],
+ sub:['Блок за подалгоритъм','Представя алгоритъм, без да се описват съставните му блокове. Обикновено така се обособява част от общия алгоритъм, която се използва многократно.'],
+ loop:['Начало и край на цикъл','<b>Начало на цикъл</b> – ще има определен брой повторения; посочва се променливата брояч с началната и крайната ѝ стойност. <b>Край на цикъл</b> – показва къде свършват повтарящите се действия; в него се задава и стъпката.'],
+ opr:['Определеност','Решението по един алгоритъм може да се извършва многократно, по всяко време, от различни хора – при едни и същи начални данни се получава еднакъв резултат.'],
+ mas:['Масовост','Алгоритъмът се използва с различни данни – решава определен тип задача, а не само конкретен пример.'],
+ rez:['Резултатност','Изпълнението завършва или с резултат, или със съобщение, че алгоритъмът не може да се приложи към зададените данни.'],
+ kray:['Крайност','Изпълнението на алгоритъма и на всяко негово действие завършва за крайно време.'],
+ disk:['Дискретност','Алгоритъмът се състои от краен брой действия; едва след изпълнението на текущото действие се пристъпва към следващото.'],
+ form:['Формалност','Изпълнителят може да няма представа за задачата и за резултатите – той само изпълнява зададените команди. Затова изпълнителят може да бъде и <b>автомат</b>.'],
+ sloj:['Сложност (ефективност)','За една задача може да има различни алгоритми. Ефективността показва използваните ресурси (памет, изчислителна мощ); най-общо – броят операции, нужни при определени входни данни.'],
+ opis:['Начини за описание','<b>Словесно описание</b> (думи от естествения език) · <b>блок-схема</b> · <b>език за програмиране</b> · <b>псевдокод</b>.'],
+ psevdo:['Псевдокод','Описание с естествен език, който наподобява език за програмиране – за да го разберат всички програмисти, дори да не знаят един и същ език. Няма утвърден стандарт; може да се съчетава с истински код и математически формули.'],
+ kod:['Код и среда за програмиране','Командите, записани със специални означения по строги правила, са <b>код (програма)</b> за компютъра. <b>Среда за програмиране</b> – приложение, в което се създава кодът, изпълнява се програмата и се вижда резултатът.'],
+ linear:['Линеен алгоритъм','Редът на действията следва една линия и не се променя при никакви условия. Пример: лице на правоъгълник – вход a, b → S = a · b → изход S (5 блока по пътя).'],
+ branched:['Разклонен алгоритъм','Редът на действията зависи от условие: ако е вярно – едни команди, иначе – други. Пример: квадратно уравнение – D = b² − 4ac; D > 0 → два корена, D = 0 → един, D < 0 → няма реални корени.'],
+ a0:['Случаят a = 0','Уравнението не е квадратно, а формулата дели на 2a = 0 – влакът „дерайлира“. Решение: проверка „a = 0?“ преди формулата; тогава решаваме bx + c = 0 или извеждаме съобщение, че алгоритъмът не може да се приложи (резултатност).'],
+ cyclic:['Цикличен алгоритъм','Има повтарящи се действия. Многократното повтаряне е <b>цикъл</b>, повтарящите се команди са <b>тяло на цикъла</b>. Когато действията се повтарят определен брой пъти – <b>цикъл с брояч</b>.'],
+ twoloops:['Два начина за цикъл','С <b>условен блок</b> (i ≤ n?) и стрелка назад или със <b>специални блокове</b> за начало и край на цикъла (в края е стъпката). Сума 1 + … + n при n = 5: тялото се изпълнява 5 пъти, S = 15.'],
+ vidove:['Видове алгоритми в живота','Изпращане на имейл – линеен; квадратно уравнение – разклонен; умножение на числата от 1 до n – цикличен. Пералнята и баницата зависят от това колко подробно ги описваме – често съчетават повторения и проверки.'],
+ maket:['Моят макет','Направих собствена блок-схема, пуснах я с влака и я превърнах в псевдокод. Една и съща идея – в два начина на описание.']
+};
+/* ===== ядро ===== */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const el=(t,a={},h)=>{const e=document.createElement(t);for(const k in a){if(k==='class')e.className=a[k];else if(k.startsWith('on'))e.addEventListener(k.slice(2),a[k]);else e.setAttribute(k,a[k]);}if(h!==undefined)e.innerHTML=h;return e;};
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const PREFIX=KEY.slice(0,8);
+function freshD(){ return {s1:{seq:[],ok:false},s2:{ok:{}},s3:{r:{}},s4:{ok:{},ran:false},s5:{seq:[],ok:false},s6:{t:{},fixAt:0,fixYes:0,fixed:false,derailed:false},s7:{cond:'',pred:'',condDraft:'',predDraft:'',a:false,b:false,sort:{},tried:{}},s8:{title:'',tpl:'',prog:null}}; }
+const fresh=()=>({at:0,done:{},notes:[],name:'',d:freshD()});
+function load(){ let s=null; try{ s=JSON.parse(localStorage.getItem(KEY)); }catch(e){ s=null; }
+  if(!s||typeof s!=='object'||!s.done||!Array.isArray(s.notes)||typeof s.d!=='object'||!s.d) s=fresh();
+  const f=freshD(); for(const k in f){ s.d[k]=Object.assign(f[k],s.d[k]||{}); } return s; }
+let S=load();
+const save=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} };
+const nm=()=>S.name||DEFAULT_NAME;
+/* ===== разбъркване: веднъж за всеки ученик; пермутацията се пази в S.perm (оцелява при презареждане) ===== */
+function hashS(t){ let h=7; for(const c of String(t)) h=(h*31+c.charCodeAt(0))|0; return Math.abs(h)||7; }
+function shuffleOnce(key,arr,bad){ // arr – редът „на решението“; bad(b) – true, ако подредбата b издава отговора
+  if(!S.perm||typeof S.perm!=='object') S.perm={};
+  const n=arr.length; let p=S.perm[key];
+  const valid=Array.isArray(p)&&p.length===n&&p.slice().sort((a,b)=>a-b).every((v,i)=>v===i);
+  if(!valid){ let s=(Math.floor(Math.random()*2147483646)+hashS(key))%2147483647||7; const r=()=>(s=s*16807%2147483647)/2147483647; let k=0;
+    do{ p=[...Array(n).keys()]; for(let i=n-1;i>0;i--){ const j=Math.floor(r()*(i+1)); const t=p[i]; p[i]=p[j]; p[j]=t; } k++; }
+    while(k<80&&n>1&&(p.every((v,i)=>v===i)||(bad&&bad(p.map(i=>arr[i])))));
+    S.perm[key]=p; save(); }
+  return p.map(i=>arr[i]); }
+function note(id){ if(!NOTES[id]||S.notes.includes(id)) return; S.notes.push(id); save(); drawNotes(true); }
+function drawNotes(nw){ const n=$('#notes'); if(!n) return; n.innerHTML=''; const j=$('#nbj'); if(j){ j.textContent=NB_ICON+' '+NB_SHORT+' ('+S.notes.length+')'; if(nw){ j.classList.remove('ping'); void j.offsetWidth; j.classList.add('ping'); } }
+  if(!S.notes.length){ n.innerHTML='<p class="empty">'+NB_EMPTY+'</p>'; return; }
+  S.notes.slice().reverse().forEach((id,k)=>{ const x=NOTES[id]; if(!x) return; n.appendChild(el('div',{class:'ent'+(k===0?' newest':'')+(nw&&k===0?' new':''),'data-id':id},'<b class="t">'+x[0]+(k===0?'<span class="nb-new">НОВО</span>':'')+'</b>'+x[1])); });
+  if(nw){ const jr=$('#jr'); if(jr) jr.scrollTop=0; } }
+function unlocked(i){ return i===0 || !!S.done[STAGES[i-1].id]; }
+function nav(){ const n=$('#nav'); n.innerHTML=''; STAGES.forEach((s,i)=>{ const b=el('button',{class:'pill'+(i===S.at?' cur':'')+(S.done[s.id]?' done':'')+(unlocked(i)?'':' lock'),'data-i':i,title:unlocked(i)?s.t:'Първо завърши предишния етап'},s.t); b.onclick=()=>{ if(unlocked(i)) go(i); }; n.appendChild(b); if(i===S.at) setTimeout(()=>{ try{ n.scrollLeft=b.offsetLeft-n.clientWidth/2+b.clientWidth/2; }catch(e){} },0); }); }
+function go(i){ S.at=i; save(); render(); try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); } }
+const TIMERS=new Set();
+function clearTimers(){ TIMERS.forEach(t=>{ clearInterval(t); clearTimeout(t); }); TIMERS.clear(); }
+function every(fn,ms){ const t=setInterval(fn,ms); TIMERS.add(t); return t; }
+function later(fn,ms){ const t=setTimeout(()=>{ TIMERS.delete(t); fn(); },ms); TIMERS.add(t); return t; }
+function render(){ clearTimers(); nav(); const st=$('#stage'); st.innerHTML=''; document.body.setAttribute('data-stage',STAGES[S.at].id); R[STAGES[S.at].id](st); }
+function confetti(n){ for(let i=0;i<n;i++){ const p=el('i',{class:'confetti'}); p.style.left=Math.random()*100+'vw'; p.style.background=CONFETTI[i%CONFETTI.length]; p.style.animationDuration=(1.5+Math.random()*1.8)+'s'; document.body.appendChild(p); setTimeout(()=>p.remove(),3800); } }
+function head(st,k,t,lead){ st.appendChild(el('div',{class:'kicker'},k)); st.appendChild(el('h2',{},t)); if(lead) st.appendChild(el('p',{class:'lead'},lead)); }
+function sayBox(st){ const b=el('div',{class:'say'}); st.appendChild(b); return b; }
+function say(box,html,kind){ box.className='say show'+(kind?' '+kind:''); box.innerHTML=html; }
+function nextBtn(st,id,label){ const n=el('div',{class:'next'}); const b=el('button',{class:'btn nextb'},label||'Към следващата гара ▶'); b.disabled=!S.done[id]; b.onclick=()=>go(S.at+1); n.appendChild(b); st.appendChild(n);
+  return ()=>{ const first=!S.done[id]; S.done[id]=true; save(); nav(); b.disabled=false; if(first){ confetti(34); setTimeout(()=>{ try{ b.scrollIntoView({behavior:'smooth',block:'nearest'}); }catch(e){} },250); } }; }
+function dlBlob(blob,name){ try{ const a=document.createElement('a'); a.download=name; a.href=URL.createObjectURL(blob); document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); }catch(e){} }
+function dlCanvas(cv,name){ try{ const a=document.createElement('a'); a.download=name; a.href=cv.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove(); }catch(e){} }
+function dlText(txt,name){ dlBlob(new Blob(['﻿'+txt],{type:'text/plain;charset=utf-8'}),name); }
+function wrapText(x,t,X,Y,mw,lh,maxL){ const words=String(t).replace(/\s+/g,' ').trim().split(' '); let l='',y=Y,n=0; for(const w of words){ const tt=l?l+' '+w:w; if(x.measureText(tt).width>mw&&l){ x.fillText(l,X,y); l=w; y+=lh; n++; if(maxL&&n>=maxL){ return y; } } else l=tt; } if(l){ x.fillText(l,X,y); y+=lh; } return y; }
+function rr(x,X,Y,W,H,r){ x.beginPath(); x.moveTo(X+r,Y); x.arcTo(X+W,Y,X+W,Y+H,r); x.arcTo(X+W,Y+H,X,Y+H,r); x.arcTo(X,Y+H,X,Y,r); x.arcTo(X,Y,X+W,Y,r); x.closePath(); }
+function hardReset(){ try{ Object.keys(localStorage).filter(k=>k.indexOf(PREFIX)===0).forEach(k=>localStorage.removeItem(k)); }catch(e){} const ov=document.getElementById('it8ar'); if(ov){ clearInterval(ov._t); ov.remove(); } clearTimers(); S=fresh(); drawNotes(false); render(); window.scrollTo(0,0); }
+function autoReset(extras){
+  let ov=document.getElementById('it8ar'); const total=(window.__it8Countdown||15);
+  if(!ov){
+    ov=document.createElement('div'); ov.id='it8ar';
+    ov.setAttribute('style','position:fixed;inset:0;z-index:9999;background:rgba(10,14,24,.66);display:flex;align-items:center;justify-content:center;padding:16px');
+    const box=document.createElement('div');
+    box.setAttribute('style','background:#fbf6e8;color:#1d2430;max-width:460px;width:100%;border-radius:16px;padding:22px 22px 18px;box-shadow:0 20px 50px rgba(0,0,0,.45);font:16px/1.5 "Segoe UI",Roboto,Arial,sans-serif;text-align:center;border-top:10px solid #14284a');
+    box.innerHTML='<div style="font-size:42px;line-height:1">✔</div><h3 style="margin:6px 0 6px;font-size:22px">Записано!</h3><p style="margin:0 0 10px">Провери, че файлът е в папка <b>„Изтегляния“ (Downloads)</b>.</p><p style="margin:0 0 6px">Заниманието ще започне отначало за следващия ученик след <b id="it8arN">'+total+'</b> сек.</p><div style="height:8px;background:#e6dcc0;border-radius:6px;overflow:hidden;margin:4px 0 14px"><i id="it8arBar" style="display:block;height:100%;width:100%;background:#d7263d;transition:width 1s linear"></i></div><div id="it8arX" style="display:flex;flex-direction:column;gap:8px"></div>';
+    ov.appendChild(box); document.body.appendChild(ov);
+    const bs='font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;';
+    const X=box.querySelector('#it8arX');
+    (extras||[]).forEach(e=>{ const b=document.createElement('button'); b.setAttribute('style',bs+'background:#e3e9f5;color:#14284a'); b.textContent=e.label; b.onclick=()=>{ e.fn(); start(); }; X.appendChild(b); });
+    const now=document.createElement('button'); now.setAttribute('style',bs+'background:#14284a;color:#fff'); now.textContent='↺ Започни отначало сега'; now.onclick=hardReset; X.appendChild(now);
+    const wait=document.createElement('button'); wait.setAttribute('style',bs+'background:#e6dcc0;color:#333'); wait.textContent='Изчакай – искам да остана още'; wait.onclick=()=>{ clearInterval(ov._t); ov.remove(); }; X.appendChild(wait);
+  }
+  function start(){ clearInterval(ov._t); let n=total; const N=ov.querySelector('#it8arN'), B=ov.querySelector('#it8arBar'); N.textContent=n; B.style.transition='none'; B.style.width='100%'; void B.offsetWidth; B.style.transition='width 1s linear';
+    ov._t=setInterval(()=>{ n--; N.textContent=Math.max(n,0); B.style.width=Math.max(0,100*n/total)+'%'; if(n<=0){ clearInterval(ov._t); hardReset(); } },1000); }
+  start();
+}
+function init(){
+  $('#reset').onclick=()=>{ if(!confirm('Да започнем ли отначало? Целият напредък и бележникът ще бъдат изтрити.')) return; hardReset(); };
+  const j=$('#nbj'); if(j) j.onclick=()=>{ const jr=$('#jr'); if(jr) jr.scrollIntoView({behavior:'smooth',block:'start'}); };
+  if(typeof S.at!=='number'||S.at<0||S.at>=STAGES.length||!unlocked(S.at)) S.at=0;
+  drawNotes(false); render();
+}
+const R={};
+function op(st,txt){ st.appendChild(el('div',{class:'op'},'<div class="av">👨‍✈️</div><div><b>Диспечерът Дидо</b><p>'+txt+'</p></div>')); }
+
+/* ===================== ИЗЧИСЛИТЕЛ НА ИЗРАЗИ ===================== */
+function Err(msg){ return {fc:true,msg}; }
+function norm(s){ return String(s).replace(/≤/g,'<=').replace(/≥/g,'>=').replace(/≠/g,'!=').replace(/[×·]/g,'*').replace(/÷/g,'/').replace(/[−–]/g,'-').replace(/[„“”]/g,'"'); }
+function tokenize(src){ const s=norm(src); const T=[]; let i=0;
+  while(i<s.length){ const c=s[i];
+    if(/\s/.test(c)){ i++; continue; }
+    if(/[0-9]/.test(c)||(c==='.'&&/[0-9]/.test(s[i+1]||''))){ let j=i; while(j<s.length&&/[0-9.]/.test(s[j])) j++; T.push({k:'num',v:parseFloat(s.slice(i,j))}); i=j; continue; }
+    if(/[A-Za-zА-Яа-я_]/.test(c)){ let j=i; while(j<s.length&&/[A-Za-zА-Яа-я_0-9]/.test(s[j])) j++; T.push({k:'id',v:s.slice(i,j)}); i=j; continue; }
+    if(c==='"'||c==="'"){ let j=i+1; while(j<s.length&&s[j]!==c&&!(c==='"'&&s[j]==='"')) j++; if(j>=s.length) throw Err('Липсват затварящи кавички в „'+src+'“.'); T.push({k:'str',v:s.slice(i+1,j)}); i=j+1; continue; }
+    const two=s.slice(i,i+2);
+    if(['<=','>=','!=','==','<>','**','&&','||'].includes(two)){ T.push({k:'op',v:two==='<>'?'!=':two==='**'?'^':two}); i+=2; continue; }
+    if('+-*/%^()<>=,!'.includes(c)){ T.push({k:'op',v:c}); i++; continue; }
+    throw Err('Не разбирам знака „'+c+'“ в „'+src+'“.');
+  }
+  return T; }
+const FN={sqrt:Math.sqrt,'корен':Math.sqrt,abs:Math.abs,round:Math.round,int:Math.trunc};
+function evalExpr(src,env){ const T=tokenize(src); let p=0;
+  const peek=()=>T[p], isOp=v=>T[p]&&T[p].k==='op'&&T[p].v===v, isW=(...w)=>T[p]&&T[p].k==='id'&&w.includes(T[p].v.toLowerCase());
+  function num(v,what){ if(typeof v!=='number') throw Err('С текст не може да се смята ('+what+').'); return v; }
+  function OR(){ let a=AND(); while(isOp('||')||isW('или','or')){ p++; const b=AND(); a=(a||b); } return a; }
+  function AND(){ let a=NOT(); while(isOp('&&')||isW('и','and')){ p++; const b=NOT(); a=(a&&b); } return a; }
+  function NOT(){ if(isOp('!')||isW('не','not')){ p++; return !NOT(); } return CMP(); }
+  function CMP(){ const a=ADD(); const t=peek(); if(t&&t.k==='op'&&['<','<=','>','>=','=','==','!='].includes(t.v)){ p++; const b=ADD(); const eq=(x,y)=>typeof x==='number'&&typeof y==='number'?Math.abs(x-y)<1e-9:x===y;
+      switch(t.v){ case '<':return a<b; case '<=':return a<=b||eq(a,b); case '>':return a>b; case '>=':return a>=b||eq(a,b); case '=':case '==':return eq(a,b); case '!=':return !eq(a,b); } } return a; }
+  function ADD(){ let a=MUL(); while(isOp('+')||isOp('-')){ const o=T[p++].v; const b=MUL(); if(o==='+'){ a=(typeof a==='string'||typeof b==='string')?String(fmt(a))+String(fmt(b)):a+b; } else a=num(a,'-')-num(b,'-'); } return a; }
+  function MUL(){ let a=UN(); while(isOp('*')||isOp('/')||isOp('%')){ const o=T[p++].v; const b=UN(); num(a,o); num(b,o);
+      if((o==='/'||o==='%')&&Math.abs(b)<1e-12) throw Err('Деление на нула! Изразът „'+src+'“ дели на 0 – влакът дерайлира.');
+      a=o==='*'?a*b:o==='/'?a/b:a%b; } return a; }
+  function UN(){ if(isOp('-')){ p++; return -num(UN(),'-'); } if(isOp('+')){ p++; return UN(); } return POW(); }
+  function POW(){ const a=AT(); if(isOp('^')){ p++; const b=UN(); return Math.pow(num(a,'^'),num(b,'^')); } return a; }
+  function AT(){ const t=T[p]; if(!t) throw Err('Изразът „'+src+'“ е недовършен.');
+    if(t.k==='num'){ p++; return t.v; } if(t.k==='str'){ p++; return t.v; }
+    if(t.k==='op'&&t.v==='('){ p++; const v=OR(); if(!isOp(')')) throw Err('Липсва затваряща скоба в „'+src+'“.'); p++; return v; }
+    if(t.k==='id'){ p++; const nmv=t.v; if(isOp('(')){ const f=FN[nmv.toLowerCase()]; if(!f) throw Err('Не познавам функцията „'+nmv+'“. Мога: sqrt, abs, round, int.'); p++; const v=OR(); if(!isOp(')')) throw Err('Липсва затваряща скоба след '+nmv+'(.'); p++;
+        if((nmv.toLowerCase()==='sqrt'||nmv==='корен')&&v<0) throw Err('Корен квадратен от отрицателно число ('+fmt(v)+') – влакът не може да продължи.'); return f(num(v,nmv)); }
+      if(!(nmv in env)) throw Err('Влакът няма вагон „'+nmv+'“ – тази променлива още няма стойност. Въведи я или ѝ дай стойност в работилница.');
+      return env[nmv]; }
+    throw Err('Не разбирам „'+src+'“ около знака „'+t.v+'“.'); }
+  const v=OR(); if(p<T.length) throw Err('Не разбирам края на „'+src+'“.'); return v; }
+function fmt(v){ if(typeof v==='boolean') return v?'ДА':'НЕ'; if(typeof v!=='number') return String(v); if(!isFinite(v)) return v>0?'∞':'грешка'; const r=Math.round(v*10000)/10000; return String(Object.is(r,-0)?0:r); }
+function splitTop(s,sep){ const out=[]; let d=0,q=null,cur=''; for(const c of norm(s)){ if(q){ cur+=c; if(c===q) q=null; continue; } if(c==='"'||c==="'"){ q=c; cur+=c; continue; } if(c==='(') d++; if(c===')') d--; if(c===sep&&d===0){ out.push(cur); cur=''; continue; } cur+=c; } out.push(cur); return out.map(x=>x.trim()).filter(x=>x.length); }
+const VAR=/^[A-Za-zА-Яа-я_][A-Za-zА-Яа-я_0-9]*$/;
+function parseAssign(s){ const m=norm(s).match(/^\s*([A-Za-zА-Яа-я_][A-Za-zА-Яа-я_0-9]*)\s*(?::=|←|<-(?!\s*\d)|=(?!=))\s*(.+)$/); if(!m) throw Err('Работилницата не разбира „'+s+'“. Очаквам вида „S = a * b“.'); return {v:m[1],e:m[2]}; }
+
+/* ===================== БЛОК-СХЕМИ: структура ===================== */
+const N=(t,x,o)=>Object.assign({t,x:x||''},o||{});
+function ids(list){ let k=0; (function w(L){ L.forEach(n=>{ n.id='b'+(k++); if(n.yes) w(n.yes); if(n.no) w(n.no); if(n.body) w(n.body); }); })(list); return list; }
+function clone(p){ return JSON.parse(JSON.stringify(p)); }
+function label(n){ switch(n.t){ case 'start':return n.x||'Начало'; case 'end':return n.x||'Край'; case 'in':return 'Вход: '+n.x; case 'out':return 'Изход: '+n.x; case 'if':case 'while':return n.x+' ?'; case 'for':return n.v+' = '+n.a+' … '+n.b; case 'fore':return n.v+' = '+n.v+(String(n.s).trim().startsWith('-')?' − '+String(n.s).trim().slice(1):' + '+n.s); default:return n.x; } }
+const SHAPE={start:'term',end:'term',in:'para',out:'para',proc:'rect',if:'dia',while:'dia',sub:'sub',for:'lb',fore:'le'};
+const CH=8.2, GAP=30;
+function wrapL(t,max){ const w=String(t).split(/\s+/); const L=[]; let c=''; for(const x of w){ if(c&&(c+' '+x).length>max){ L.push(c); c=x; } else c=c?c+' '+x:x; } if(c) L.push(c); return L.length?L.slice(0,4):['']; }
+function bdim(n){ const s=SHAPE[n.t]; const dia=s==='dia'; const L=wrapL(label(n),dia?18:24); const lg=Math.max(...L.map(l=>l.length));
+  const w=Math.max(dia?150:116, lg*CH+(dia?80:s==='para'?50:s==='sub'?50:34)); const h=Math.max(dia?66:44, 18+L.length*19+(dia?26:0)); return {s,L,w,h}; }
+function EL(list){ if(!list||!list.length) return {l:0,r:0,h:0}; let l=0,r=0,h=0; list.forEach((n,i)=>{ const e=EN(n); l=Math.max(l,e.l); r=Math.max(r,e.r); h+=e.h+(i?GAP:0); }); return {l,r,h}; }
+function EN(n){ const d=bdim(n);
+  if(n.t==='if'){ const y=EL(n.yes), no=EL(n.no); const dxY=Math.max(d.w/2+8,y.r+18), dxN=Math.max(d.w/2+8,no.l+18); const hb=Math.max(y.h,no.h); return {l:dxY+Math.max(y.l,12),r:dxN+Math.max(no.r,12),h:d.h+14+hb+20,d,dxY,dxN,hb}; }
+  if(n.t==='while'){ const b=EL(n.body); const xl=Math.max(b.l,d.w/2)+26, xr=Math.max(b.r,d.w/2)+26; return {l:xl+6,r:xr+6,h:d.h+GAP+b.h+14+20,d,xl,xr}; }
+  if(n.t==='for'){ const dE=bdim(Object.assign({},n,{t:'fore'})); const b=EL(n.body); return {l:Math.max(d.w/2,dE.w/2,b.l),r:Math.max(d.w/2,dE.w/2,b.r),h:d.h+GAP+(b.h?b.h+GAP:0)+dE.h,d,dE}; }
+  return {l:d.w/2,r:d.w/2,h:d.h,d}; }
+function DL(list,cx,y,D){ let yb=y; list.forEach((n,i)=>{ if(i>0){ D.push({k:'ln',p:[[cx,yb],[cx,yb+GAP]],a:1}); yb+=GAP; } yb=DN(n,cx,yb,D); }); return yb; }
+function DN(n,cx,y,D){ const e=EN(n), d=e.d;
+  if(n.t==='if'){ D.push({k:'blk',s:'dia',x:cx,y,w:d.w,h:d.h,L:d.L,id:n.id,t:n.t}); const vy=y+d.h/2, xY=cx-e.dxY, xN=cx+e.dxN, bt=y+d.h+14, jy=bt+e.hb+20;
+    let yy=bt, ny=bt;
+    D.push({k:'ln',p:[[cx-d.w/2,vy],[xY,vy],[xY,bt]],a:n.yes.length?1:0}); if(n.yes.length) yy=DL(n.yes,xY,bt,D);
+    D.push({k:'ln',p:[[cx+d.w/2,vy],[xN,vy],[xN,bt]],a:n.no.length?1:0}); if(n.no.length) ny=DL(n.no,xN,bt,D);
+    D.push({k:'ln',p:[[xY,yy],[xY,jy],[cx,jy]]}); D.push({k:'ln',p:[[xN,ny],[xN,jy],[cx,jy]]}); D.push({k:'dot',x:cx,y:jy});
+    D.push({k:'lb',x:cx-d.w/2-4,y:vy-7,t:'ДА',an:'end'}); D.push({k:'lb',x:cx+d.w/2+4,y:vy-7,t:'НЕ',an:'start'}); return jy; }
+  if(n.t==='while'){ D.push({k:'blk',s:'dia',x:cx,y,w:d.w,h:d.h,L:d.L,id:n.id,t:n.t}); const vy=y+d.h/2, bt=y+d.h+GAP;
+    D.push({k:'ln',p:[[cx,y+d.h],[cx,bt]],a:1}); D.push({k:'lb',x:cx+6,y:y+d.h+16,t:'ДА',an:'start'});
+    let yb=bt; if(n.body.length) yb=DL(n.body,cx,bt,D);
+    D.push({k:'ln',p:[[cx,yb],[cx,yb+14],[cx-e.xl,yb+14],[cx-e.xl,y-13],[cx,y-13]],a:1});
+    const ey=yb+34; D.push({k:'ln',p:[[cx+d.w/2,vy],[cx+e.xr,vy],[cx+e.xr,ey],[cx,ey]]}); D.push({k:'dot',x:cx,y:ey}); D.push({k:'lb',x:cx+d.w/2+4,y:vy-7,t:'НЕ',an:'start'}); return ey; }
+  if(n.t==='for'){ D.push({k:'blk',s:'lb',x:cx,y,w:d.w,h:d.h,L:d.L,id:n.id,t:n.t}); let yb=y+d.h;
+    if(n.body.length){ D.push({k:'ln',p:[[cx,yb],[cx,yb+GAP]],a:1}); yb=DL(n.body,cx,yb+GAP,D); }
+    D.push({k:'ln',p:[[cx,yb],[cx,yb+GAP]],a:1}); yb+=GAP; D.push({k:'blk',s:'le',x:cx,y:yb,w:e.dE.w,h:e.dE.h,L:e.dE.L,id:n.id+'e',t:'fore'}); return yb+e.dE.h; }
+  D.push({k:'blk',s:d.s,x:cx,y,w:d.w,h:d.h,L:d.L,id:n.id,t:n.t}); return y+d.h; }
+function shapeD(s,x,y,w,h){ const l=x-w/2, r=x+w/2, b=y+h;
+  switch(s){
+    case 'term':{ const q=h/2; return 'M'+(l+q)+' '+y+'H'+(r-q)+'A'+q+' '+q+' 0 0 1 '+(r-q)+' '+b+'H'+(l+q)+'A'+q+' '+q+' 0 0 1 '+(l+q)+' '+y+'Z'; }
+    case 'para': return 'M'+(l+14)+' '+y+'H'+r+'L'+(r-14)+' '+b+'H'+l+'Z';
+    case 'dia': return 'M'+x+' '+y+'L'+r+' '+(y+h/2)+'L'+x+' '+b+'L'+l+' '+(y+h/2)+'Z';
+    case 'lb': return 'M'+(l+13)+' '+y+'H'+(r-13)+'L'+r+' '+(y+13)+'V'+b+'H'+l+'V'+(y+13)+'Z';
+    case 'le': return 'M'+l+' '+y+'H'+r+'V'+(b-13)+'L'+(r-13)+' '+b+'H'+(l+13)+'L'+l+' '+(b-13)+'Z';
+    default: return 'M'+l+' '+y+'H'+r+'V'+b+'H'+l+'Z'; } }
+const FILL={term:'#cfeedd',para:'#d3e4f8',rect:'#fff0c4',dia:'#fbd3cc',sub:'#e4dbf6',lb:'#cdeeee',le:'#cdeeee'};
+function layout(prog){ ids(prog); const D=[]; const e=EL(prog); const pad=46; const W=Math.ceil(e.l+e.r+pad*2), H=Math.ceil(e.h+pad*2-10); DL(prog,pad+e.l,pad-4,D); return {D,W,H}; }
+function svgChart(prog,cls){ const {D,W,H}=layout(prog); let s='<svg class="fc '+(cls||'')+'" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Блок-схема"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1d2430"/></marker></defs>';
+  D.filter(d=>d.k==='ln').forEach(d=>{ s+='<polyline points="'+d.p.map(q=>q.join(',')).join(' ')+'" fill="none" stroke="#1d2430" stroke-width="2"'+(d.a?' marker-end="url(#ah)"':'')+'/>'; });
+  D.filter(d=>d.k==='dot').forEach(d=>{ s+='<circle cx="'+d.x+'" cy="'+d.y+'" r="3" fill="#1d2430"/>'; });
+  D.filter(d=>d.k==='blk').forEach(d=>{ s+='<g data-id="'+d.id+'"><path class="bk" d="'+shapeD(d.s,d.x,d.y,d.w,d.h)+'" fill="'+FILL[d.s]+'"/>';
+    if(d.s==='sub') s+='<line x1="'+(d.x-d.w/2+9)+'" y1="'+d.y+'" x2="'+(d.x-d.w/2+9)+'" y2="'+(d.y+d.h)+'" stroke="#1d2430" stroke-width="2"/><line x1="'+(d.x+d.w/2-9)+'" y1="'+d.y+'" x2="'+(d.x+d.w/2-9)+'" y2="'+(d.y+d.h)+'" stroke="#1d2430" stroke-width="2"/>';
+    d.L.forEach((t,i)=>{ s+='<text x="'+d.x+'" y="'+(d.y+d.h/2+(i-(d.L.length-1)/2)*19+5)+'" text-anchor="middle" font-size="15" fill="#1d2430">'+esc(t)+'</text>'; });
+    s+='<g class="bdgw" style="display:none"><circle class="bdg" cx="'+(d.x+d.w/2-4)+'" cy="'+(d.y+2)+'" r="12"/><text class="bdgt" x="'+(d.x+d.w/2-4)+'" y="'+(d.y+6)+'" text-anchor="middle"></text></g>';
+    s+='<text class="trn" x="'+(d.x-d.w/2-6)+'" y="'+(d.y+d.h/2+9)+'" text-anchor="end" font-size="24" style="display:none">🚂</text></g>'; });
+  D.filter(d=>d.k==='lb').forEach(d=>{ s+='<text x="'+d.x+'" y="'+d.y+'" text-anchor="'+d.an+'" font-size="13" font-weight="800" fill="'+(d.t==='ДА'?'#1f6b3f':'#a3271a')+'">'+d.t+'</text>'; });
+  return s+'</svg>'; }
+function drawChartCanvas(x,prog,X,Y,maxW){ const {D,W,H}=layout(prog); const sc=Math.min(1.35,maxW/W); x.save(); x.translate(X,Y); x.scale(sc,sc); x.lineWidth=2; x.strokeStyle='#1d2430'; x.fillStyle='#1d2430';
+  D.filter(d=>d.k==='ln').forEach(d=>{ x.beginPath(); d.p.forEach((q,i)=>i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1])); x.stroke(); if(d.a){ const a=d.p[d.p.length-2], b=d.p[d.p.length-1]; const an=Math.atan2(b[1]-a[1],b[0]-a[0]); x.beginPath(); x.moveTo(b[0],b[1]); x.lineTo(b[0]-10*Math.cos(an-0.4),b[1]-10*Math.sin(an-0.4)); x.lineTo(b[0]-10*Math.cos(an+0.4),b[1]-10*Math.sin(an+0.4)); x.closePath(); x.fill(); } });
+  D.filter(d=>d.k==='dot').forEach(d=>{ x.beginPath(); x.arc(d.x,d.y,3,0,7); x.fill(); });
+  D.filter(d=>d.k==='blk').forEach(d=>{ const P=new Path2D(shapeD(d.s,d.x,d.y,d.w,d.h)); x.fillStyle=FILL[d.s]; x.fill(P); x.stroke(P); if(d.s==='sub'){ x.beginPath(); x.moveTo(d.x-d.w/2+9,d.y); x.lineTo(d.x-d.w/2+9,d.y+d.h); x.moveTo(d.x+d.w/2-9,d.y); x.lineTo(d.x+d.w/2-9,d.y+d.h); x.stroke(); }
+    x.fillStyle='#1d2430'; x.font='15px "Segoe UI",Roboto,Arial,sans-serif'; x.textAlign='center'; d.L.forEach((t,i)=>x.fillText(t,d.x,d.y+d.h/2+(i-(d.L.length-1)/2)*19+5)); });
+  D.filter(d=>d.k==='lb').forEach(d=>{ x.font='800 13px "Segoe UI",Arial,sans-serif'; x.textAlign=d.an==='end'?'right':'left'; x.fillStyle=d.t==='ДА'?'#1f6b3f':'#a3271a'; x.fillText(d.t,d.x,d.y); });
+  x.restore(); return {w:W*sc,h:H*sc}; }
+function miniShape(s,txt){ const w=84,h=s==='dia'?36:30; const y=(40-h)/2; let o='<svg viewBox="0 0 92 40" aria-hidden="true"><path d="'+shapeD(s,46,y,w,h)+'" fill="'+FILL[s]+'" stroke="#1d2430" stroke-width="2"/>'; if(s==='sub') o+='<line x1="13" y1="'+y+'" x2="13" y2="'+(y+h)+'" stroke="#1d2430" stroke-width="2"/><line x1="79" y1="'+y+'" x2="79" y2="'+(y+h)+'" stroke="#1d2430" stroke-width="2"/>'; if(txt) o+='<text x="46" y="25" text-anchor="middle" font-size="12" fill="#1d2430">'+esc(txt)+'</text>'; return o+'</svg>'; }
+
+/* ===================== ИЗПЪЛНИТЕЛ (влакът) ===================== */
+function compile(prog){ const I=[]; (function C(list){ list.forEach(n=>{ switch(n.t){
+  case 'start': I.push({op:'nop',id:n.id}); break; case 'end': I.push({op:'halt',id:n.id}); break;
+  case 'in': I.push({op:'in',id:n.id,n}); break; case 'out': I.push({op:'out',id:n.id,n}); break;
+  case 'proc': I.push({op:'proc',id:n.id,n}); break; case 'sub': I.push({op:'sub',id:n.id,n}); break;
+  case 'if':{ const j={op:'if',id:n.id,n}; I.push(j); C(n.yes); const jm={op:'jmp'}; I.push(jm); j.f=I.length; C(n.no); jm.to=I.length; break; }
+  case 'while':{ const L=I.length; const j={op:'if',id:n.id,n}; I.push(j); C(n.body); I.push({op:'jmp',to:L}); j.f=I.length; break; }
+  case 'for':{ const j={op:'fi',id:n.id,n}; I.push(j); const B=I.length; C(n.body); I.push({op:'fs',id:n.id+'e',n,to:B}); j.f=I.length; break; }
+ } }); })(prog); return I; }
+function inVars(prog){ const v=[]; (function w(L){ L.forEach(n=>{ if(n.t==='in') splitTop(n.x,',').forEach(x=>{ if(VAR.test(x)&&!v.includes(x)) v.push(x); }); if(n.yes) w(n.yes); if(n.no) w(n.no); if(n.body) w(n.body); }); })(prog); return v; }
+const LIMIT=400;
+function Runner(host,cfg){
+  let prog=cfg.prog, I=null, st=null, timer=null, G={};
+  host.innerHTML=''; host.className='runner';
+  const top=el('div',{class:'rn-top'}), inB=el('div',{class:'rn-in'}), ctr=el('div',{class:'rn-ctr'});
+  const bRun=el('button',{class:'btn rnRun'},'▶ Потегли'), bStep=el('button',{class:'btn alt rnStep'},'⏭ Стъпка'), bBack=el('button',{class:'btn ghost rnBack',style:'color:#f4efe1'},'↺ В депото');
+  ctr.append(bRun,bStep,bBack); top.append(inB,ctr);
+  const chart=el('div',{class:'hscroll rn-chart'}), train=el('div',{class:'rn-train'}), stat=el('div',{class:'rn-stat'}), log=el('div',{class:'rn-log'});
+  host.append(top,chart,train,stat,log);
+  const inputs=Object.assign({},cfg.inputs||{});
+  function buildInputs(){ inB.innerHTML=''; const v=inVars(prog); if(!v.length){ inB.innerHTML='<span class="lbl">Без товар – няма блок за вход</span>'; return; } inB.appendChild(el('span',{class:'lbl'},'🛤 Товарен перон')); v.forEach(k=>{ const l=el('label',{},esc(k)+' ='); const i=el('input',{type:'text',inputmode:'decimal','data-v':k,value:inputs[k]!=null?String(inputs[k]):''}); i.oninput=()=>{ inputs[k]=i.value; if(cfg.onInput) cfg.onInput(k,i.value); stop(); clearRun(); }; if(cfg.lock) i.readOnly=true; l.appendChild(i); inB.appendChild(l); }); }
+  function draw(){ chart.innerHTML=svgChart(prog); G={}; $$('g[data-id]',chart).forEach(g=>G[g.getAttribute('data-id')]=g); }
+  function clearRun(){ st=null; Object.values(G).forEach(g=>{ const p=g.querySelector('.bk'); p.classList.remove('cur','vis','err'); g.querySelector('.trn').style.display='none'; g.querySelector('.bdgw').style.display='none'; }); train.innerHTML='<span class="loco">🚂</span><span class="hint">Влакът чака в депото. Вагоните ще носят стойностите на променливите.</span>'; stat.innerHTML='<span>Гари по пътя: 0</span>'; log.innerHTML=''; }
+  function stop(){ if(timer){ clearInterval(timer); TIMERS.delete(timer); timer=null; } bRun.textContent='▶ Потегли'; }
+  function lg(h,c){ const d=el('div',{class:c||''},h); log.appendChild(d); log.scrollTop=log.scrollHeight; }
+  function begin(){ const vals={}; for(const k of inVars(prog)){ const raw=String(inputs[k]==null?'':inputs[k]).trim().replace(',','.'); if(raw===''||isNaN(+raw)){ clearRun(); lg('⚠ Товарният перон чака число за „'+esc(k)+'“.','e'); return false; } vals[k]=+raw; }
+    try{ I=compile(prog); }catch(e){ lg('⚠ '+esc(e.msg||e),'e'); return false; }
+    clearRun(); st={pc:0,vars:{},out:[],steps:0,visits:{},done:false,err:null,vals,path:[]}; train.innerHTML='<span class="loco">🚂</span>'; return true; }
+  function showTrain(changed){ train.innerHTML='<span class="loco">🚂</span>'; const ks=Object.keys(st.vars); if(!ks.length) train.appendChild(el('span',{class:'hint'},'(още няма вагони)')); ks.forEach(k=>train.appendChild(el('span',{class:'wg'+(changed.includes(k)?' chg':'')},'<b>'+esc(k)+'</b>'+esc(fmt(st.vars[k]))))); }
+  function finish(ok,msg){ st.done=true; stop(); if(msg) lg(msg,ok?'o':'e'); if(cfg.onDone) cfg.onDone({ok,out:st.out.slice(),vars:Object.assign({},st.vars),steps:st.steps,visits:Object.assign({},st.visits),err:st.err,inputs:Object.assign({},st.vals),path:st.path.slice()}); }
+  function mark(id){ Object.values(G).forEach(g=>{ g.querySelector('.bk').classList.remove('cur'); g.querySelector('.trn').style.display='none'; }); const g=G[id]; if(!g) return; const p=g.querySelector('.bk'); p.classList.add('cur','vis'); g.querySelector('.trn').style.display=''; const k=st.visits[id]; if(k>1){ const b=g.querySelector('.bdgw'); b.style.display=''; b.querySelector('text').textContent='×'+k; } }
+  function step(){ if(!st||st.done){ if(!begin()) return false; }
+    let guard=0; let ins;
+    while(true){ if(st.pc>=I.length){ finish(false,'⚠ Релсите свършиха без крайна гара! Всеки алгоритъм завършва с блок „Край“.'); return false; } ins=I[st.pc]; if(ins.op==='jmp'){ st.pc=ins.to; if(++guard>200){ finish(false,'⚠ Релсите се въртят в празен кръг.'); return false; } continue; } break; }
+    st.steps++; st.visits[ins.id]=(st.visits[ins.id]||0)+1; st.path.push(ins.id); const chg=[];
+    if(st.steps>LIMIT){ st.err='limit'; mark(ins.id); const g=G[ins.id]; if(g) g.querySelector('.bk').classList.add('err'); finish(false,'🛑 Аварийна спирачка: влакът мина вече '+LIMIT+' гари и не спира. Алгоритъмът трябва да е краен!'); return false; }
+    try{ const n=ins.n;
+      switch(ins.op){
+        case 'nop': lg('🚉 Потегляме от началната гара.'); st.pc++; break;
+        case 'in':{ const vs=splitTop(n.x,','); const got=[]; vs.forEach(v=>{ if(!VAR.test(v)) throw Err('В блока за вход трябва да има имена на променливи, разделени със запетая („a, b“), а не „'+v+'“.'); st.vars[v]=st.vals[v]; chg.push(v); got.push(v+' = '+fmt(st.vals[v])); }); lg('📦 Товарен перон: качваме '+esc(got.join(', '))+'.'); st.pc++; break; }
+        case 'proc':{ const parts=splitTop(n.x,';'); if(!parts.length) throw Err('Празна работилница – напиши команда, например „S = a * b“.'); const done=[]; parts.forEach(pt=>{ const a=parseAssign(pt); const v=evalExpr(a.e,st.vars); st.vars[a.v]=v; chg.push(a.v); done.push(a.v+' = '+fmt(v)); }); lg('🔧 Работилница „'+esc(n.x)+'“ → '+esc(done.join(', '))); st.pc++; break; }
+        case 'sub': lg('🚇 Тунел „'+esc(n.x)+'“ – подалгоритъмът е описан отделно; влакът минава през него.'); st.pc++; break;
+        case 'out':{ const vals=splitTop(n.x,',').map(e=>fmt(evalExpr(e,st.vars))); const t=vals.join('  '); st.out.push(t); lg('📤 Разтоварваме: '+esc(t),'o'); st.pc++; break; }
+        case 'if':{ const c=evalExpr(n.x,st.vars); if(typeof c!=='boolean') throw Err('В ромба трябва да има условие (сравнение), например „D > 0“, а не „'+n.x+'“.'); lg('🔀 Стрелка „'+esc(n.x)+'“ → '+(c?'<b>ДА</b>':'<b>НЕ</b>')); st.pc=c?st.pc+1:ins.f; break; }
+        case 'fi':{ if(!VAR.test(n.v)) throw Err('Броячът трябва да е име на променлива (например i).'); const a=evalExpr(n.a,st.vars), b=evalExpr(n.b,st.vars), s=evalExpr(n.s,st.vars); if(!s) throw Err('Стъпка 0 – броячът никога няма да стигне края.'); st.vars[n.v]=a; chg.push(n.v); const inside=s>0?a<=b+1e-9:a>=b-1e-9; lg('🔄 Обръщател: '+esc(n.v)+' = '+fmt(a)+' (до '+fmt(b)+')'+(inside?'':' – краят е подминат, тялото не се изпълнява.')); st.pc=inside?st.pc+1:ins.f; break; }
+        case 'fs':{ const b=evalExpr(n.b,st.vars), s=evalExpr(n.s,st.vars); st.vars[n.v]=st.vars[n.v]+s; chg.push(n.v); const again=s>0?st.vars[n.v]<=b+1e-9:st.vars[n.v]>=b-1e-9; lg('↩ Край на кръга: '+esc(n.v)+' = '+fmt(st.vars[n.v])+(again?' → още една обиколка':' → излизаме от цикъла')); st.pc=again?ins.to:st.pc+1; break; }
+        case 'halt': mark(ins.id); showTrain(chg); stat.innerHTML='<span>Гари по пътя: '+st.steps+'</span>'; finish(true,'🏁 Крайна гара! Влакът пристигна.'); return false;
+      }
+    }catch(e){ st.err=e.msg||String(e); mark(ins.id); const g=G[ins.id]; if(g){ g.querySelector('.bk').classList.add('err'); g.querySelector('.trn').textContent='💥'; } showTrain(chg); finish(false,'💥 '+esc(st.err)); return false; }
+    mark(ins.id); showTrain(chg); stat.innerHTML='<span>Гари по пътя: '+st.steps+'</span>'; return true; }
+  function run(){ if(timer){ stop(); return; } if(!st||st.done){ if(!begin()) return; } bRun.textContent='⏸ Пауза'; timer=every(()=>{ if(!step()) stop(); },cfg.speed||520); }
+  bRun.onclick=run; bStep.onclick=()=>{ stop(); step(); }; bBack.onclick=()=>{ stop(); clearRun(); };
+  function setProg(p){ stop(); prog=p; buildInputs(); draw(); clearRun(); }
+  function setInputs(o){ Object.assign(inputs,o); buildInputs(); stop(); clearRun(); }
+  function fastRun(){ stop(); if(!begin()) return; let g=0; while(step()&&g++<LIMIT+5){} }
+  setProg(prog);
+  return {setProg,setInputs,run,fastRun,stop,get inputs(){ return inputs; }};
+}
+/* псевдокод от блок-схема */
+function pseudo(prog){ const out=[]; const ind=k=>'   '.repeat(k);
+  (function w(L,k){ L.forEach(n=>{ switch(n.t){
+    case 'start': out.push(ind(k)+'начало'); break; case 'end': out.push(ind(k)+'край'); break;
+    case 'in': out.push(ind(k)+'въведи '+n.x); break; case 'out': out.push(ind(k)+'изведи '+n.x); break;
+    case 'proc': splitTop(n.x,';').forEach(p=>out.push(ind(k)+p.replace(/\s*(?::=|=(?!=))\s*/,' ← '))); break;
+    case 'sub': out.push(ind(k)+'изпълни подалгоритъм „'+n.x+'“'); break;
+    case 'if': out.push(ind(k)+'ако '+n.x+', то'); w(n.yes,k+1); if(n.no.length){ out.push(ind(k)+'иначе'); w(n.no,k+1); } out.push(ind(k)+'край на ако'); break;
+    case 'while': out.push(ind(k)+'докато '+n.x+', повтаряй'); w(n.body,k+1); out.push(ind(k)+'край на цикъла'); break;
+    case 'for': out.push(ind(k)+'за '+n.v+' от '+n.a+' до '+n.b+' със стъпка '+n.s+', повтаряй'); w(n.body,k+1); out.push(ind(k)+'край на цикъла'); break; } }); })(prog,0);
+  return out.join('\n'); }
+
+/* ===================== INTRO ===================== */
+const HERO='<svg class="heroSvg" viewBox="0 0 560 210" aria-hidden="true"><rect x="0" y="0" width="560" height="210" rx="16" fill="#24492f"/><rect x="38" y="34" width="484" height="142" rx="70" fill="none" stroke="#6b4a2b" stroke-width="16"/><rect x="38" y="34" width="484" height="142" rx="70" fill="none" stroke="#c9b48a" stroke-width="16" stroke-dasharray="3 9"/><rect x="38" y="34" width="484" height="142" rx="70" fill="none" stroke="#2b2b2b" stroke-width="2"/><rect x="54" y="50" width="452" height="110" rx="54" fill="none" stroke="#2b2b2b" stroke-width="2" opacity=".5"/>'+
+ '<path d="M280 105h-40" stroke="#f2b632" stroke-width="3"/><rect x="200" y="78" width="72" height="34" rx="17" fill="#cfeedd" stroke="#14284a" stroke-width="2"/><text x="236" y="100" text-anchor="middle" font-size="13" fill="#14284a" font-family="Segoe UI,Arial">Начало</text><path d="M300 78l36 17-36 17-36-17z" fill="#fbd3cc" stroke="#14284a" stroke-width="2" transform="translate(28 0)"/><text x="328" y="99" text-anchor="middle" font-size="12" fill="#14284a" font-family="Segoe UI,Arial">ДА / НЕ</text>'+
+ '<g transform="translate(96 150)"><rect x="0" y="-22" width="58" height="26" rx="5" fill="#d7263d"/><rect x="40" y="-34" width="14" height="14" fill="#14284a"/><circle cx="12" cy="6" r="6" fill="#222"/><circle cx="44" cy="6" r="6" fill="#222"/><rect x="64" y="-18" width="44" height="22" rx="4" fill="#f2b632"/><circle cx="74" cy="6" r="5" fill="#222"/><circle cx="98" cy="6" r="5" fill="#222"/><text x="86" y="-2" text-anchor="middle" font-size="12" font-weight="700" fill="#1d1a10" font-family="Consolas,monospace">a=3</text><rect x="114" y="-18" width="44" height="22" rx="4" fill="#f2b632"/><circle cx="124" cy="6" r="5" fill="#222"/><circle cx="148" cy="6" r="5" fill="#222"/><text x="136" y="-2" text-anchor="middle" font-size="12" font-weight="700" fill="#1d1a10" font-family="Consolas,monospace">b=4</text></g>'+
+ '<g transform="translate(430 40)"><rect x="0" y="0" width="70" height="40" fill="#fbf6e8" stroke="#14284a" stroke-width="2"/><path d="M-6 0l41-18 41 18z" fill="#d7263d"/><text x="35" y="26" text-anchor="middle" font-size="11" font-weight="700" fill="#14284a" font-family="Arial Narrow,Arial">ГАРА</text></g></svg>';
+R.intro=function(st){
+  const h=el('div',{class:'hero'});
+  h.innerHTML=HERO+'<div class="kicker" style="margin-top:12px">Информационни технологии · 10. клас · Урок 4</div><h1>Железопътният макет</h1>'+
+   '<p>В мазето на читалището стои огромен железопътен макет – с гари, перони, стрелки, тунели и обръщателен кръг. Но влакът „Хорезми“ е <b>робот</b>: не разбира задачи, а само следва релсите, които му положиш.</p>'+
+   '<p>Ще научиш правилата на компанията (свойствата на алгоритмите), ще наредиш знаците (блоковете на блок-схемата), ще поправиш дерайлирал влак и ще построиш <b>собствен макет</b>, който ще си запазиш като картинка.</p>'+
+   '<div class="name-row"><input type="text" id="nm" maxlength="30" placeholder="Твоето име (или прякор)" value="'+esc(S.name)+'"><button class="btn" id="go">Слагам фуражката 🚂</button></div>'+
+   '<p class="small">8 гари · около 35 минути · без оценки – когато влакът дерайлира, просто го връщаш в депото и опитваш пак</p>';
+  st.appendChild(h);
+  $('#go').onclick=()=>{ S.name=$('#nm').value.trim(); S.done.intro=true; save(); go(1); };
+};
+
+/* ===================== 1. ДЕПОТО ===================== */
+const CMDS=[
+ {id:'A',t:'Вземи дължината на първия катет a'},
+ {id:'F',t:'Намери лицето на триъгълника'},
+ {id:'C',t:'Умножи a по b'},
+ {id:'G',t:'Измери хипотенузата c'},
+ {id:'B',t:'Вземи дължината на втория катет b'},
+ {id:'E',t:'Съобщи резултата'},
+ {id:'D',t:'Раздели произведението на 2'}];
+R.depo=function(st){ const D=S.d.s1;
+  head(st,'Гара 1 · Депото','Роботът-машинист и първият му маршрут');
+  op(st,'Здравей, '+esc(nm())+'! Нашият локомотив се казва <b>„Хорезми“</b> – на учения, от чието име идва думата <b>алгоритъм</b>. Машинистът му е робот: изпълнява само команди, които разбира, и точно в реда, в който са закачени вагоните. Днес задачата е: <b>да намери лицето на правоъгълен триъгълник</b> с катети a = 3 и b = 4.');
+  st.appendChild(el('div',{class:'cur-card'},'<b>Любопитно:</b> Мохамед ибн Муса ал-Хорезми работи в Багдад в началото на IX в. – математик, астроном и географ. Името „алгебра“ идва от заглавието на негова книга „Ал-джабр вал-мукабала“, а преводът на негова книга на латински разпространява арабските цифри в Европа.'));
+  note('horezmi');
+  st.appendChild(el('h3',{},'Закачи вагоните с команди'));
+  st.appendChild(el('p',{class:'small'},'Докосни команда, за да я закачиш като вагон след локомотива. Докосни вагон, за да го откачиш. Не всяка команда е нужна!'));
+  const cards=el('div',{class:'cards'}); st.appendChild(cards);
+  const cons=el('div',{class:'consist',id:'consist'}); st.appendChild(cons);
+  const row=el('div',{class:'row'}); const bGo=el('button',{class:'btn',id:'s1go'},'🚂 Потегли с тези вагони'); const bClr=el('button',{class:'btn ghost'},'Откачи всички'); row.append(bGo,bClr); st.appendChild(row);
+  const box=sayBox(st); const extra=el('div'); st.appendChild(extra); const done=nextBtn(st,'depo');
+  const CM=shuffleOnce('depo',CMDS,b=>b.map(x=>x.id).filter(x=>'ABCDE'.includes(x)).join('')==='ABCDE');
+  function draw(){ cards.innerHTML=''; CM.forEach(c=>{ const b=el('button',{class:'cmd'+(D.seq.includes(c.id)?' used':''),'data-c':c.id},esc(c.t)); b.onclick=()=>{ if(D.seq.includes(c.id)) return; D.seq.push(c.id); save(); draw(); }; cards.appendChild(b); });
+    cons.innerHTML='<span class="loco">🚂</span>'; if(!D.seq.length) cons.appendChild(el('span',{class:'empty-consist'},'← тук ще се закачат вагоните'));
+    D.seq.forEach((id,i)=>{ const c=CMDS.find(x=>x.id===id); const w=el('button',{class:'wagon','data-w':id},'<i>вагон '+(i+1)+'</i>'+esc(c.t)); w.onclick=()=>{ D.seq.splice(i,1); save(); draw(); }; cons.appendChild(w); }); }
+  bClr.onclick=()=>{ D.seq=[]; save(); draw(); box.className='say'; };
+  function check(){ const q=D.seq, pos=id=>q.indexOf(id); const ws=$$('.wagon',cons);
+    const flag=id=>{ const w=ws[pos(id)]; if(w) w.classList.add('bad'); };
+    if(!q.length) return say(box,'Няма нито един вагон – роботът стои в депото и чака команди.','warn');
+    if(q.includes('F')){ flag('F'); return say(box,'🤖 <i>„Намери лицето на триъгълника“? Не знам как се прави това.</i><br>Това е <b>сложно действие</b>. Изпълнителят разбира само <b>елементарни</b> действия – разложи го на по-прости стъпки (вземи, умножи, раздели…).','warn'); }
+    const need=['A','B','C','D','E'].filter(x=>!q.includes(x));
+    if(pos('C')>-1&&(pos('A')===-1||pos('B')===-1||pos('C')<pos('A')||pos('C')<pos('B'))){ flag('C'); return say(box,'🤖 <i>„Умножи a по b“… но аз още нямам и двете числа!</i><br>Редът на действията трябва да е описан <b>ясно и точно</b> – първо данните, после сметката.','warn'); }
+    if(pos('D')>-1&&(pos('C')===-1||pos('D')<pos('C'))){ flag('D'); return say(box,'🤖 <i>„Раздели произведението на 2“ – кое произведение? Още не съм умножил нищо.</i><br>Провери реда на вагоните.','warn'); }
+    if(pos('E')>-1&&pos('E')!==q.length-1){ flag('E'); return say(box,'🤖 <i>Съобщих резултата… а после продължих да смятам?</i><br>Резултатът се съобщава, след като е готов – последният вагон.','warn'); }
+    if(need.length){ return say(box,'🤖 Изпълних всичко, което ми закачи, но '+(need.includes('E')?'<b>никой не разбра какъв е резултатът</b> – липсва вагон, който да го съобщи.':'липсва ми стъпка: „'+esc(CMDS.find(c=>c.id===need[0]).t)+'“.'),'warn'); }
+    if(q.includes('G')){ flag('G'); return say(box,'🤖 <i>Измерих хипотенузата c… и никъде не я използвах.</i><br>Не е грешка, но е излишен вагон – влакът се движи по-бавно. Откачи го, за да е маршрутът чист.','warn'); }
+    ws.forEach(w=>w.classList.add('go'));
+    say(box,'✅ 🤖 <i>Взех a = 3. Взех b = 4. Умножих: 12. Разделих на 2: 6. Съобщавам: лицето е 6.</i><br>Роботът стигна до резултата, без изобщо да знае какво е триъгълник – просто следва команди. Това е <b>алгоритъм</b>.');
+    if(!D.ok){ D.ok=true; save(); }
+    showMore(); }
+  function showMore(){ extra.innerHTML='';
+    extra.appendChild(el('div',{class:'tip'},'<b>Алгоритъм</b> е последователност от елементарни действия и правила, изпълнението на които води до решаване на определена задача. Като рецепта за баница, инструкцията за пералнята или метода за решаване на квадратно уравнение. Преди да се напише компютърна програма, често първо се изработва алгоритъм.'));
+    extra.appendChild(el('div',{class:'tip'},'<b>Трите изисквания на депото</b> – току-що ги усети сам: ① редът е описан ясно и точно; ② всяко действие е разбираемо за изпълнителя; ③ сложното действие („намери лицето“) се разделя на по-прости.'));
+    note('alg'); note('izisk'); done(); }
+  bGo.onclick=check; draw(); if(D.ok) showMore();
+};
+
+/* ===================== 2. ЗНАЦИТЕ ===================== */
+const OBJS=[
+ {id:'o1',e:'🏁',t:'Начална гара',d:'Оттук тръгва всеки влак. Една линия излиза.',s:'term',n:'startend'},
+ {id:'o2',e:'📦',t:'Товарен перон',d:'Качваме данните, с които ще работим.',s:'para',n:'io'},
+ {id:'o3',e:'🔧',t:'Работилница',d:'Тук се смята и се записват нови стойности.',s:'rect',n:'proc'},
+ {id:'o4',e:'🔀',t:'Стрелка',d:'Пътят се разделя на два – според една проверка.',s:'dia',n:'dec'},
+ {id:'o5',e:'🚇',t:'Тунел',d:'Цял участък, който е описан на друг план.',s:'sub',n:'sub'},
+ {id:'o6',e:'🔄',t:'Вход на обръщателния кръг',d:'Влакът ще обиколи определен брой пъти.',s:'lb',n:'loop'},
+ {id:'o7',e:'↩',t:'Изход от обръщателния кръг',d:'Тук свършва обиколката и броячът се увеличава.',s:'le',n:'loop'},
+ {id:'o8',e:'📤',t:'Перон за разтоварване',d:'Показваме резултатите.',s:'para',n:'io'},
+ {id:'o9',e:'🏁',t:'Крайна гара',d:'Тук пътуването свършва. Може да пристигат много линии.',s:'term',n:'startend'}];
+const SHP=[{s:'term',t:'овал (елипса)'},{s:'para',t:'успоредник'},{s:'rect',t:'правоъгълник'},{s:'dia',t:'ромб'},{s:'sub',t:'правоъгълник с ивици'},{s:'lb',t:'„отрязан“ отгоре'},{s:'le',t:'„отрязан“ отдолу'}];
+const WHY={term:'Овалът е само за началната и крайната гара – оттам пътят започва или свършва.',para:'Успоредникът е за перони: вход и изход на данни.',rect:'Правоъгълникът е работилница – безусловно пресмятане; излиза само една линия.',dia:'Ромбът е стрелка – от него излизат ДВЕ линии (ДА и НЕ).',sub:'Правоъгълникът с ивици е тунел – подалгоритъм, описан отделно.',lb:'Тази фигура отбелязва НАЧАЛОТО на цикъл (брояч и граници).',le:'Тази фигура отбелязва КРАЯ на цикъл (тук е стъпката).'};
+R.znaci=function(st){ const D=S.d.s2; let sel=null;
+  const OB=shuffleOnce('znaci-o',OBJS), SH=shuffleOnce('znaci-s',SHP,b=>OB.some((o,i)=>b[i]&&b[i].s===o.s));
+  head(st,'Гара 2 · Знаците','Всяка фигура на макета има точно определен смисъл');
+  op(st,'Плановете на макета се чертаят като <b>блок-схеми</b>: блокове с различна форма, свързани със стрелки. Когато един блок е изпълнен, влакът продължава по стрелката, която излиза от него. Избери обект от макета, после фигурата, с която се чертае.');
+  note('blok');
+  const grid=el('div',{class:'objs'}); st.appendChild(grid);
+  st.appendChild(el('div',{class:'small',style:'margin-top:10px'},'Фигури в кутията с чертожни шаблони:'));
+  const sh=el('div',{class:'shapes'}); st.appendChild(sh);
+  const box=sayBox(st); const done=nextBtn(st,'znaci');
+  function draw(){ grid.innerHTML=''; OB.forEach(o=>{ const ok=D.ok[o.id]; const b=el('button',{class:'obj'+(ok?' ok':'')+(sel===o.id?' sel':''),'data-o':o.id},'<span class="e">'+o.e+'</span><b>'+o.t+'</b><span>'+o.d+'</span>'+(ok?miniShape(o.s):'')); b.onclick=()=>{ if(ok) return; sel=o.id; draw(); }; grid.appendChild(b); }); }
+  SH.forEach(x=>{ const b=el('button',{class:'shp','data-s':x.s},miniShape(x.s)+x.t); b.onclick=()=>{ if(!sel) return say(box,'Първо избери обект от макета (горе), после фигурата.','warn'); const o=OBJS.find(q=>q.id===sel);
+      if(x.s===o.s){ D.ok[o.id]=true; save(); sel=null; draw(); say(box,'✅ '+o.e+' <b>'+o.t+'</b> → '+x.t+'. '+NOTES[o.n][1]); note(o.n); if(OBJS.every(q=>D.ok[q.id])) finish(); }
+      else say(box,'🤔 '+WHY[x.s]+' А „'+o.t+'“ – '+o.d.charAt(0).toLowerCase()+o.d.slice(1)+' Опитай с друга фигура.','warn'); }; sh.appendChild(b); });
+  function finish(){ say(box,'✅ Всички знаци са по местата си! Забележи: <b>входът и изходът</b> имат една и съща форма (успоредник), а <b>началото и краят</b> – също (овал). Различава ги надписът и посоката на стрелките.'); done(); }
+  draw(); if(OBJS.every(q=>D.ok[q.id])) finish();
+};
+
+/* ===================== 3. ПРАВИЛНИКЪТ ===================== */
+R.pravila=function(st){ const D=S.d.s3;
+  head(st,'Гара 3 · Правилникът','Седемте правила на железопътната компания');
+  op(st,'Всеки маршрут, който пускаме по макета, трябва да спазва правилата на компанията. Това са <b>свойствата на алгоритмите</b>. Изпробвай всяко правило с бутона в картата – така то се „подписва“ и влиза в бележника.');
+  const g=el('div',{class:'rules'}); st.appendChild(g); const box=sayBox(st); const done=nextBtn(st,'pravila');
+  function fin(id,card,msg){ card.classList.add('fin'); const r=card.querySelector('.res'); if(msg&&r) r.innerHTML=msg; if(!D.r[id]){ D.r[id]=true; save(); } note(id); if(['opr','mas','rez','kray','disk','form','sloj'].every(k=>D.r[k])){ say(box,'✅ Правилникът е подписан. Всеки маршрут оттук нататък ще го спазва – а ти ще го проверяваш.'); done(); } }
+  function card(id,title,sub,html,setup){ const c=el('div',{class:'rule'+(D.r[id]?' fin':''),'data-r':id},'<h4><small>Правило</small>'+title+'</h4><p>'+sub+'</p><div class="demo">'+html+'<div class="res"></div></div>'); g.appendChild(c); setup(c,(m)=>fin(id,c,m)); if(D.r[id]) note(id); }
+  card('opr','Определеност','Едни и същи данни → един и същ резултат. Всеки път, от всеки диспечер.','Два влака с товар a = 3, b = 4 тръгват по маршрута „лице на правоъгълник“.<div class="row"><button class="btn">🚂🚂 Пусни двата влака</button></div>',(c,f)=>{ c.querySelector('button').onclick=()=>f('Влак 1 (сутрин, диспечер Ани): S = 12 · Влак 2 (вечер, диспечер Боби): S = 12. Еднакво – както трябва.'); });
+  card('mas','Масовост','Маршрутът работи с различни данни – за цял тип задачи.','<label>a = <b class="va">3</b><input type="range" min="1" max="20" value="3" class="ra"></label><label>b = <b class="vb">4</b><input type="range" min="1" max="20" value="4" class="rb"></label><div>S = a · b = <b class="vs">12</b></div>',(c,f)=>{ const A=c.querySelector('.ra'),B=c.querySelector('.rb'); let moved=0; const up=()=>{ c.querySelector('.va').textContent=A.value; c.querySelector('.vb').textContent=B.value; c.querySelector('.vs').textContent=A.value*B.value; if(++moved>=2) f('Същият маршрут смята лицето на <i>всеки</i> правоъгълник, не само на 3 × 4.'); }; A.oninput=up; B.oninput=up; });
+  card('rez','Резултатност','Пътуването свършва с резултат – или със съобщение, че маршрутът не може да се приложи.','Натовари страна a = −2 (отрицателна дължина).<div class="row"><button class="btn">📦 Натовари a = −2</button></div>',(c,f)=>{ c.querySelector('button').onclick=()=>f('📤 „Алгоритъмът не може да се приложи: страните трябва да са положителни числа.“ – влакът не мълчи и не дерайлира, а казва ясно какво става.'); });
+  card('kray','Крайност','Всеки маршрут и всяко действие завършват за крайно време.','Маршрут „сума 1 + 2 + … + 5“, но в работилницата някой е забравил командата <span class="mono">i = i + 1</span>.<div>Обиколки: <b class="lap">0</b> · i = <b class="mono">1</b></div><div class="row"><button class="btn red b1">🔄 Пусни влака</button><button class="btn b2" disabled>🔧 Добави i = i + 1</button></div>',(c,f)=>{ const L=c.querySelector('.lap'), b1=c.querySelector('.b1'), b2=c.querySelector('.b2'); let t=null;
+    b1.onclick=()=>{ b1.disabled=true; let k=0; t=every(()=>{ k++; L.textContent=k; if(k>=60){ clearInterval(t); c.querySelector('.res').innerHTML='🛑 Аварийна спирачка след 60 обиколки: i остава 1, условието i ≤ 5 е вярно завинаги. Такъв маршрут <b>не е алгоритъм</b>.'; b2.disabled=false; } },45); };
+    b2.onclick=()=>{ b2.disabled=true; let k=0; const s=[1,3,6,10,15]; t=every(()=>{ L.textContent=k+1; c.querySelector('.mono').textContent=k+2; if(++k>=5){ clearInterval(t); f('След 5 обиколки i = 6 и влакът излиза от кръга със сума 15. Сега маршрутът е краен.'); } },300); }; });
+  card('disk','Дискретност','Краен брой отделни действия; следващото започва, едва когато текущото свърши.','<div class="sema"><span>1 · вход a, b</span><span>2 · S = a · b</span><span>3 · изход S</span><span>4 · край</span></div><div class="row"><button class="btn">🚦 Следващ семафор</button></div>',(c,f)=>{ let k=0; const sp=c.querySelectorAll('.sema span'); c.querySelector('button').onclick=()=>{ if(k>0) sp[k-1].className='on'; if(k<4){ sp[k].className='now'; k++; } else { sp[3].className='on'; f('Четири отделни стъпки – семафорът пуска следващата само след като предишната е завършена.'); c.querySelector('button').disabled=true; } }; });
+  card('form','Формалност','Изпълнителят не е длъжен да разбира задачата – само изпълнява командите.','Роботът току-що изпълни: <span class="mono">вход x, y → z = x · y / 2 → изход z</span>.<div class="row"><button class="btn">🤖 Попитай робота какво сметна</button></div>',(c,f)=>{ c.querySelector('button').onclick=()=>f('🤖 <i>„Не знам. Умножих две числа и разделих на 2.“</i> А това беше лицето на триъгълник! Точно затова изпълнител на алгоритъм може да бъде и <b>автомат</b>.'); });
+  card('sloj','Сложност (ефективност)','За една задача има различни маршрути – някои харчат много повече ресурси.','Задача: сумата 1 + 2 + … + 100. Маршрут А обикаля кръга 100 пъти. Маршрут Б е една работилница: <span class="mono">S = n · (n + 1) / 2</span>.<div class="row"><button class="btn">⚖ Сравни двата маршрута</button></div>',(c,f)=>{ c.querySelector('button').onclick=()=>f('Маршрут А: 100 събирания + 100 увеличавания на брояча + 101 проверки ≈ <b>300 действия</b>. Маршрут Б: <b>3 действия</b> (+, ·, /). Резултатът е еднакъв – 5050, но Б е много по-ефективен.'); });
+};
+
+/* ===================== 4. ТЕЛЕГРАФЪТ ===================== */
+const MIN3=()=>[N('start'),N('in','a, b, c'),N('proc','m = a'),N('if','b < m',{yes:[N('proc','m = b')],no:[]}),N('if','c < m',{yes:[N('proc','m = c')],no:[]}),N('out','m'),N('end')];
+const TGS=[
+ {id:'sl',h:'Телеграма № 1',body:'<p>Запомни първото число като най-малкото засега. Сравни второто число с него – ако е по-малко, то става най-малкото. Направи същото с третото. Накрая съобщи кое е най-малкото.</p>',to:'chovek'},
+ {id:'ps',h:'Телеграма № 2',body:'<pre>въведи a, b, c\nm ← a\nако b < m, то m ← b\nако c < m, то m ← c\nизведи m</pre>',to:'kolega'},
+ {id:'kd',h:'Телеграма № 3',body:'<pre>Dim a, b, c, m As Double\na = InputBox("a = ")\nb = InputBox("b = ")\nc = InputBox("c = ")\nm = a\nIf b &lt; m Then m = b\nIf c &lt; m Then m = c\nMsgBox ("Най-малкото е " &amp; m)</pre>',to:'komp'},
+ {id:'bs',h:'Телеграма № 4',body:'',to:'proekt'}];
+const RCP={chovek:{e:'🧑‍🔧',t:'Новият стрелочник',d:'не е програмист',n:'Словесно описание',why:'думи от естествения език – разбира ги всеки човек.'},kolega:{e:'🌍',t:'Колега от Япония',d:'програмира на друг език',n:'Псевдокод',why:'наподобява език за програмиране, но не е обвързан с конкретен – разбира го всеки програмист.'},komp:{e:'💻',t:'Компютърът на гарата',d:'изпълнява само програми',n:'Език за програмиране (Visual Basic)',why:'строги правила за записване – това е <b>код</b>, който компютърът изпълнява.'},proekt:{e:'🗺️',t:'Проектантът на макета',d:'мисли в картинки',n:'Блок-схема',why:'визуална представа за връзките между действията.'}};
+R.telegraf=function(st){ const D=S.d.s4; let sel=null;
+  const TG=shuffleOnce('tg',TGS), RK=shuffleOnce('rcp',Object.keys(RCP),b=>TG.some((t,i)=>b[i]===t.to));
+  head(st,'Гара 4 · Телеграфът','Един и същ маршрут – на четири „езика“');
+  op(st,'Пристигнаха четири телеграми. Всички описват <b>един и същ алгоритъм</b> – намиране на най-малкото от три числа. Но всеки получател разбира различен „език“. Избери телеграма и я изпрати на подходящия получател.');
+  const tg=el('div',{class:'tgs'}); st.appendChild(tg);
+  const rc=el('div',{class:'rcps'}); st.appendChild(rc); const box=sayBox(st);
+  const after=el('div'); st.appendChild(after); const done=nextBtn(st,'telegraf');
+  function draw(){ tg.innerHTML=''; TG.forEach((t,ti)=>{ const ok=D.ok[t.id]; const b=el('div',{class:'tg'+(ok?' ok':'')+(sel===t.id?' sel':''),'data-t':t.id,role:'button',tabindex:'0'},'<div class="h">Телеграма № '+(ti+1)+'</div>'+(t.id==='bs'?'<div class="fcm hscroll">'+svgChart(MIN3())+'</div>':t.body)+'<div class="to">✔ Изпратена: '+RCP[t.to].n+'</div>'); b.onclick=()=>{ if(ok) return; sel=t.id; draw(); }; tg.appendChild(b); });
+    rc.innerHTML=''; RK.forEach(k=>{ const r=RCP[k]; const used=TGS.some(t=>t.to===k&&D.ok[t.id]); const b=el('button',{class:'rcp'+(used?' done':''),'data-r':k},'<span class="e">'+r.e+'</span><b>'+r.t+'</b>'+r.d); b.onclick=()=>pick(k); rc.appendChild(b); }); }
+  function pick(k){ if(!sel) return say(box,'Първо избери телеграма (горе), после получателя.','warn'); const t=TGS.find(x=>x.id===sel);
+    if(t.to===k){ D.ok[t.id]=true; save(); sel=null; say(box,'✅ '+RCP[k].e+' '+RCP[k].t+' получи <b>'+RCP[k].n+'</b> – '+RCP[k].why); draw(); if(t.id==='ps') note('psevdo'); if(t.id==='kd') note('kod'); if(TGS.every(x=>D.ok[x.id])) more(); }
+    else say(box,'📨 '+RCP[k].e+' '+RCP[k].t+' връща телеграмата: „Не мога да работя с това – аз '+RCP[k].d+'.“ Помисли кой разбира този запис.','warn'); }
+  function more(){ note('opis'); after.innerHTML='';
+    after.appendChild(el('div',{class:'tip'},'<b>Четирите начина за описание:</b> словесно · блок-схема · език за програмиране · псевдокод. <b>Псевдокод</b> няма утвърден стандарт – авторът решава колко подробен да е; може да се смесва с истински код и с математически формули. <b>Код</b> се пише в <b>среда за програмиране</b> – там се създава програмата, изпълнява се и се вижда резултатът.'));
+    after.appendChild(el('p',{},'Пусни блок-схемата от телеграмата за проектанта – провери как влакът намира най-малкото число. Смени товара и опитай пак.'));
+    const h=el('div'); after.appendChild(h); Runner(h,{prog:MIN3(),inputs:{a:9,b:7,c:11},onDone:r=>{ if(r.ok){ D.ran=true; save(); done(); } }});
+    if(D.ran) done(); }
+  draw(); if(TGS.every(x=>D.ok[x.id])) more();
+};
+
+/* ===================== 5. ПРАВА ЛИНИЯ ===================== */
+const PCS=[{id:'p5',n:N('end')},{id:'p3',n:N('proc','S = a * b')},{id:'p1',n:N('start')},{id:'p6',n:N('proc','S = 2 * (a + b)')},{id:'p4',n:N('out','S')},{id:'p2',n:N('in','a, b')}];
+R.linia=function(st){ const D=S.d.s5;
+  head(st,'Гара 5 · Права линия','Линеен алгоритъм: лице на правоъгълник');
+  op(st,'Първият истински маршрут! Нареди релсовите парчета за алгоритъма <b>„лице на правоъгълник“</b>. За него са нужни стойности за дължините на страните a и b. Внимавай – в кутията има и едно парче от друг маршрут.');
+  const two=el('div',{class:'two'}); st.appendChild(two);
+  const L=el('div'), Rt=el('div'); two.append(L,Rt);
+  L.appendChild(el('div',{class:'small'},'Кутия с парчета (докосни, за да положиш):')); const tray=el('div',{class:'tray'}); L.appendChild(tray);
+  L.appendChild(el('div',{class:'small'},'Положени релси (отгоре надолу):')); const seq=el('div',{class:'seqbox',id:'seq5'}); L.appendChild(seq);
+  const row=el('div',{class:'row'}); const bChk=el('button',{class:'btn',id:'s5chk'},'✔ Провери линията'); row.appendChild(bChk); L.appendChild(row);
+  const box=sayBox(L); const host=el('div'); Rt.appendChild(host); const after=el('div'); st.appendChild(after); const done=nextBtn(st,'linia');
+  let runner=null;
+  function prog(){ return D.seq.map(id=>clone(PCS.find(p=>p.id===id).n)); }
+  const PS=shuffleOnce('linia',PCS,b=>b.map(x=>x.id).filter(x=>x!=='p6').join(',')==='p1,p2,p3,p4,p5');
+  function draw(){ tray.innerHTML=''; PS.forEach(p=>{ const used=D.seq.includes(p.id); const b=el('button',{class:'piece'+(used?' used':''),'data-p':p.id},miniShape(SHAPE[p.n.t])+esc(label(p.n))); b.onclick=()=>{ if(used) return; D.seq.push(p.id); D.ok=false; save(); draw(); }; tray.appendChild(b); });
+    seq.innerHTML=''; if(!D.seq.length) seq.appendChild(el('span',{class:'small'},'Още няма положени релси.'));
+    D.seq.forEach((id,i)=>{ const p=PCS.find(x=>x.id===id); const r=el('div',{class:'seqit'},'<span class="n">'+(i+1)+'</span>'+miniShape(SHAPE[p.n.t]).replace('<svg','<svg style="width:54px;height:24px"')+'<span>'+esc(label(p.n))+'</span>'); const x=el('button',{title:'Махни'},'✕'); x.onclick=()=>{ D.seq.splice(i,1); D.ok=false; save(); draw(); }; r.appendChild(x); seq.appendChild(r); });
+    if(D.ok&&!runner) mkRunner(); if(!D.ok){ host.innerHTML=''; runner=null; after.innerHTML=''; } }
+  function mkRunner(){ host.innerHTML=''; runner=Runner(host,{prog:prog(),inputs:{a:3,b:4},onDone:r=>{ if(r.ok){ say(box,'🏁 Влакът мина през <b>'+r.steps+' гари</b>: начало → вход → работилница → изход → край. Нито една стрелка, нито един кръг – това е <b>линеен</b> алгоритъм.'); note('linear'); done(); } }}); }
+  bChk.onclick=()=>{ const q=D.seq.map(id=>PCS.find(p=>p.id===id).n.t), has=id=>D.seq.includes(id), at=id=>D.seq.indexOf(id);
+    if(!q.length) return say(box,'Положи поне няколко парчета.','warn');
+    if(q[0]!=='start') return say(box,'Всеки маршрут започва от <b>началната гара</b> – тя трябва да е най-горе.','warn');
+    if(!has('p5')||q[q.length-1]!=='end') return say(box,'Маршрутът трябва да завършва с <b>крайна гара</b> – иначе влакът изпада от релсите.','warn');
+    if(has('p6')) return say(box,'🧐 Парчето „S = 2 * (a + b)“ смята <b>периметъра</b>, не лицето. Влакът е формален – ще го изпълни с удоволствие и ще достави грешното число. Махни го.','warn');
+    if(!has('p2')||!has('p3')||!has('p4')) return say(box,'Липсва парче: трябват ни вход, работилница и изход.','warn');
+    if(!(at('p2')<at('p3')&&at('p3')<at('p4'))) return say(box,'Влакът трябва първо да натовари a и b, после да смята и чак тогава да разтовари S. Провери реда.','warn');
+    D.ok=true; save(); say(box,'✅ Линията е положена. Пусни влака отдясно – с бутона „Стъпка“ можеш да го водиш гара по гара. Смени товара (a, b) и пусни пак.'); draw(); };
+  draw(); if(D.ok){ say(box,'Линията е положена. Пусни влака, за да видиш колко гари минава.'); if(S.done.linia) done(); }
+};
+
+/* ===================== 6. СТРЕЛКИТЕ ===================== */
+const QROOTS=()=>[N('proc','x1 = (-b + sqrt(D)) / (2 * a); x2 = (-b - sqrt(D)) / (2 * a)'),N('out','x1, x2')];
+function quadBody(fixAt,fixYes){ const fix=fixYes===2?[N('proc','x = -c / b'),N('out','x')]:[N('out','"Не е квадратно уравнение"')];
+  const roots=fixAt===3?[QROOTS()[0],N('if','a = 0',{yes:fix,no:[QROOTS()[1]]})]:QROOTS();
+  const ifD=N('if','D > 0',{yes:roots,no:[N('if','D = 0',{yes:[N('proc','x = -b / (2 * a)'),N('out','x')],no:[N('out','"Няма реални корени"')]})]});
+  const pD=N('proc','D = b * b - 4 * a * c');
+  if(fixAt===1) return [N('start'),N('in','a, b, c'),N('if','a = 0',{yes:fix,no:[pD,ifD]}),N('end')];
+  if(fixAt===2) return [N('start'),N('in','a, b, c'),pD,N('if','a = 0',{yes:fix,no:[ifD]}),N('end')];
+  return [N('start'),N('in','a, b, c'),pD,ifD,N('end')]; }
+const TICK=[{a:1,b:1,c:1},{a:1,b:2,c:1},{a:1,b:1,c:-2},{a:0,b:2,c:1}];
+R.strelki=function(st){ const D=S.d.s6;
+  head(st,'Гара 6 · Стрелките','Разклонен алгоритъм: квадратно уравнение ax² + bx + c = 0');
+  op(st,'Този маршрут има стрелки. Влакът смята дискриминантата <b>D = b² − 4ac</b> и според нея избира път: D > 0 – два корена, D = 0 – един корен, D < 0 – няма реални корени. Имаш четири товарителници – пусни влака с всяка и гледай кой път избира.');
+  const tk=el('div',{class:'tickets'}); st.appendChild(tk);
+  const host=el('div'); st.appendChild(host); const box=sayBox(st); const fixBox=el('div'); st.appendChild(fixBox); const done=nextBtn(st,'strelki');
+  let runner=null, cur=null;
+  const key=t=>t.a+'|'+t.b+'|'+t.c;
+  function drawT(){ tk.innerHTML='<span class="small" style="align-self:center">Товарителници:</span>'; TICK.forEach((t,i)=>{ const b=el('button',{class:'ticket'+(D.t[key(t)]?' done':''),'data-k':i},'a='+t.a+', b='+t.b+', c='+t.c); b.onclick=()=>{ cur=t; runner.setInputs(t); runner.run(); }; tk.appendChild(b); }); }
+  const fixOn=()=>!!(D.fixAt&&D.fixYes);
+  function prog(){ return quadBody(fixOn()?D.fixAt:0,D.fixYes); }
+  function onDone(r){ const k=r.inputs.a+'|'+r.inputs.b+'|'+r.inputs.c; const isT=TICK.some(t=>key(t)===k);
+    if(r.ok){ if(isT){ D.t[k]=true; save(); drawT(); }
+      if(r.inputs.a===0&&fixOn()){ if(!D.fixed){ D.fixed=true; save(); } say(box,'✅ Сега при a = 0 влакът минава по новата стрелка и извежда: <b>'+esc(r.out.join(' / '))+'</b>. Алгоритъмът вече е <b>резултатен</b> и за тези данни.'); note('a0'); }
+      else say(box,'🏁 Резултат: <b>'+esc(r.out.join(' / '))+'</b>. '+(r.inputs.a===1&&r.inputs.b===1&&r.inputs.c===1?'D = −3 < 0, затова влакът зави по НЕ два пъти.':r.inputs.b===2&&r.inputs.c===1?'D = 0 – точно един корен.':r.inputs.c===-2?'D = 9 > 0 – два корена.':''));
+      if(TICK.slice(0,3).every(t=>D.t[key(t)])) note('branched'); }
+    else { if(r.inputs.a===0&&fixOn()&&D.fixAt===3){ say(box,'💥 Пак дерайлиране! Стрелката „a = 0?“ е поставена <b>след</b> работилницата за x1 и x2 – влакът вече е разделил на 0, преди да стигне до нея. Премести я по-рано.','warn'); }
+      else if(r.inputs.a===0){ D.derailed=true; save(); say(box,'💥 <b>Дерайлиране!</b> При a = 0 дискриминантата е D = 4 > 0 и влакът влиза в работилницата за корените – но там дели на 2a = 0. Уравнението 0·x² + 2x + 1 = 0 изобщо не е квадратно! Какво трябва да се добави, за да работи алгоритъмът и в този случай?','warn'); showFix(); }
+      else say(box,'💥 '+esc(r.err||'Влакът спря.'),'warn'); }
+    check(); }
+  function showFix(){ if(fixBox.childNodes.length) return; fixBox.appendChild(el('h3',{},'🔧 Ремонт: нова стрелка „a = 0?“'));
+    fixBox.appendChild(el('p',{class:'small'},'1) Къде да сложим стрелката? 2) Какво да прави влакът по линията ДА? После пусни отново товарителницата a=0, b=2, c=1.'));
+    const c1=el('div',{class:'chips'}), c2=el('div',{class:'chips',style:'margin-top:8px'}); fixBox.append(c1,c2);
+    const A=shuffleOnce('fixA',[[1,'веднага след товарния перон'],[2,'след работилницата за D'],[3,'точно преди перона за x1, x2']]), Y=shuffleOnce('fixY',[[1,'изход „Не е квадратно уравнение“'],[2,'x = −c / b и изход x (линейно уравнение)']]);
+    const dr=()=>{ c1.innerHTML=''; c2.innerHTML=''; A.forEach(([v,t])=>{ const b=el('button',{class:'chip'+(D.fixAt===v?' on':''),'data-fa':v},'📍 '+t); b.onclick=()=>{ D.fixAt=v; save(); dr(); apply(); }; c1.appendChild(b); }); Y.forEach(([v,t])=>{ const b=el('button',{class:'chip'+(D.fixYes===v?' on':''),'data-fy':v},'ДА → '+t); b.onclick=()=>{ D.fixYes=v; save(); dr(); apply(); }; c2.appendChild(b); }); };
+    dr(); }
+  function apply(){ if(!fixOn()){ say(box,!D.fixAt?'Сега избери и <b>къде</b> да стои новата стрелка (ред 1).':'Сега избери и <b>какво да прави</b> влакът по линията ДА (ред 2).',''); return; } runner.setProg(prog()); runner.setInputs({a:0,b:2,c:1}); say(box,D.fixAt===3?'Стрелката е положена… но дали не е твърде късно? Пусни товарителницата a = 0 и виж.':'Новата стрелка е положена. Пусни товарителницата a = 0, b = 2, c = 1.',''); }
+  function check(){ if(TICK.every(t=>D.t[key(t)])&&D.fixed&&fixOn()&&D.fixAt!==3) done(); }
+  runner=Runner(host,{prog:prog(),inputs:{a:1,b:1,c:1},speed:480,onDone});
+  drawT(); if(D.derailed) showFix(); if(S.done.strelki) done();
+};
+
+/* ===================== 7. ОБРЪЩАТЕЛЯТ ===================== */
+const SUMW=c=>[N('start'),N('in','n'),N('proc','S = 0; i = 1'),N('while',c,{body:[N('proc','S = S + i'),N('proc','i = i + 1')]}),N('out','S'),N('end')];
+const SUMF=()=>[N('start'),N('in','n'),N('proc','S = 0'),N('for','',{v:'i',a:'1',b:'n',s:'1',body:[N('proc','S = S + i')]}),N('out','S'),N('end')];
+const CARS=[{id:'w1',t:'Пране с автоматична пералня',m:'c',c:{l:'Ако пералнята само изпере веднъж – да. Но тя повтаря изплакване и центрофуга и проверява дали водата е стигнала нивото – има повторения и проверки.',b:'Да, има проверки (стигна ли водата нивото? студена ли е?), но най-характерни са повторенията – въртене, изплакване, пак въртене.',c:'Барабанът се върти и изплакването се повтаря многократно – цикли. (Вътре има и проверки – реалните алгоритми често са смесени.)'}},
+ {id:'w2',t:'Изпращане на електронно писмо',m:'l',c:{l:'Адрес → тема → текст → „Изпрати“: една права линия.',b:'Може и така, ако добавим проверка „верен ли е адресът?“. В най-простия вид обаче стъпките са подредени в една линия.',c:'Нищо не се повтаря – освен ако не пращаш едно и също писмо на 30 души поотделно 😉. Обикновено е линеен.'}},
+ {id:'w3',t:'Умножение на числата от 1 до n',m:'c',c:{l:'Колко действия ще има, зависи от n – не може да ги изпишем в една линия за всяко n.',b:'Нужен е брояч, който се увеличава, и проверка докога – но в основата е повторение.',c:'Като сумата 1..n, само че с умножение: P = P · i, повторено n пъти – цикъл с брояч.'}},
+ {id:'w4',t:'Приготвяне на баница',m:'l',c:{l:'По рецепта: стъпка след стъпка – линеен.',b:'Ако рецептата казва „ако тестото е сухо, добави вода“ – става разклонен.',c:'Също вярно! „Повтаряй: лист, плънка – докато свършат корите“ е цикъл. Зависи колко подробно описваме.'}},
+ {id:'w5',t:'Решаване на квадратно уравнение',m:'b',c:{l:'Помниш стрелките от гара 6 – D > 0? D = 0? Пътят зависи от условие.',b:'Точно: изборът на път зависи от дискриминантата.',c:'Нищо не се повтаря – влакът минава веднъж, но по различни стрелки. Разклонен.'}}];
+R.krag=function(st){ const D=S.d.s7;
+  head(st,'Гара 7 · Обръщателят','Цикличен алгоритъм: сумата 1 + 2 + … + n');
+  op(st,'Обръщателният кръг кара влака да мине по едни и същи релси много пъти. Това е <b>цикъл</b>. Задачата: сумата на първите n естествени числа. Трябват три променливи: <b>n</b> – крайното число, <b>S</b> – сумата, <b>i</b> – брояч, който расте с 1 в края на всяка обиколка.');
+  st.appendChild(el('h3',{},'Кръг А – със стрелка (условен блок)'));
+  st.appendChild(el('p',{class:'small'},'Стрелката (ромбът) още е празна – ти решаваш какво пише в нея. Докато проверката дава ДА, влакът обикаля; при НЕ излиза от кръга. Преди да пуснеш влака, <b>предскажи</b> колко пъти ще мине през тялото на цикъла при n = 5.'));
+  const pr=el('div',{class:'pred'}); st.appendChild(pr);
+  const lC=el('label',{},'Проверка в стрелката'); const iC=el('input',{type:'text',class:'cond',id:'condA',maxlength:'20',placeholder:'сравни i с n',autocomplete:'off'}); iC.value=D.cond||''; lC.appendChild(iC);
+  const lP=el('label',{},'Прогноза: обиколки при n = 5'); const iP=el('input',{type:'text',inputmode:'numeric',class:'num',id:'predA',maxlength:'3',placeholder:'брой'}); iP.value=D.pred||''; lP.appendChild(iP);
+  const bLay=el('button',{class:'btn',id:'layA'},'🔀 Положи стрелката'); pr.append(lC,lP,bLay);
+  const ch=el('div',{class:'chips'}); st.appendChild(ch);
+  ['≤','<','≥','>','=','≠'].forEach(t=>{ const b=el('button',{class:'chip mono',title:'Добави знака'},t); b.onclick=()=>{ iC.value=(iC.value.replace(/\s+$/,'')+' '+t+' ').replace(/^\s+/,''); iC.focus(); }; ch.appendChild(b); });
+  const hA=el('div'); st.appendChild(hA); const boxA=sayBox(st);
+  const partB=el('div'); st.appendChild(partB); const partC=el('div'); st.appendChild(partC); const done=nextBtn(st,'krag');
+  let rA=null;
+  iC.oninput=()=>{ D.condDraft=iC.value; save(); }; iP.oninput=()=>{ D.predDraft=iP.value; save(); };
+  if(!D.cond&&D.condDraft) iC.value=D.condDraft; if(!D.pred&&D.predDraft) iP.value=D.predDraft;
+  function sim(c,n){ let Sv=0,i=1,k=0; try{ while(true){ const v=evalExpr(c,{n,S:Sv,i}); if(typeof v!=='boolean') return null; if(!v) break; Sv+=i; i++; if(++k>300) return {inf:true,k}; } }catch(e){ return null; } return {S:Sv,k}; }
+  function emptyChart(){ hA.className=''; hA.innerHTML='<div class="fcm hscroll" style="opacity:.75">'+svgChart(SUMW('…'))+'</div>'; }
+  function lay(){ const c=iC.value.trim(), p=iP.value.trim();
+    if(!c) return say(boxA,'Напиши проверка в стрелката – сравнение, в което участват брояча <b>i</b> и крайното число <b>n</b>.','warn');
+    let v; try{ v=evalExpr(c,{i:1,n:5,S:0}); }catch(e){ return say(boxA,'🤔 '+esc(e.msg||String(e)),'warn'); }
+    if(typeof v!=='boolean') return say(boxA,'В ромба трябва да има <b>сравнение</b> (например с „<“, „≤“, „>“ или „=“), а не „'+esc(c)+'“.','warn');
+    if(!/^\d{1,3}$/.test(p)) return say(boxA,'Първо запиши <b>прогнозата</b> си – цяло число: колко пъти тялото на цикъла ще се изпълни при n = 5? Няма грешна прогноза – после ще сравниш с влака.','warn');
+    D.cond=c; D.pred=p; save();
+    if(!rA){ rA=Runner(hA,{prog:SUMW(c),inputs:{n:5},speed:380,onDone:onA}); } else rA.setProg(SUMW(c));
+    say(boxA,'Стрелката „'+esc(c)+' ?“ е положена. Пусни влака с n = 5 (бутон ▶ или „Стъпка“).',''); }
+  function onA(r){ const c=D.cond;
+    if(!r.ok){ if(r.err==='limit'){ return say(boxA,'🛑 Проверката „'+esc(c)+'“ е вярна винаги – влакът никога не излиза от кръга. Каква проверка ще стане НЕ, когато броячът надмине n?','warn'); } return say(boxA,'💥 '+esc(r.err||''),'warn'); }
+    const n=r.inputs.n, s=r.vars.S; const pass=r.visits['b4']||0;
+    const g5=sim(c,5), g3=sim(c,3), g8=sim(c,8); const general=g5&&g3&&g8&&!g5.inf&&g5.S===15&&g3.S===6&&g8.S===36;
+    if(!general){
+      if(g5&&g5.S===10) return say(boxA,'🤨 S = '+fmt(s)+'. Влакът пропусна последната обиколка – при i = '+fmt(n)+' проверката „'+esc(c)+'“ е НЕ и числото '+fmt(n)+' не се добавя. Промени проверката и положи стрелката пак.','warn');
+      if(g5&&g5.S===0) return say(boxA,'🤨 S = '+fmt(s)+'. Още на първата проверка (i = 1) отговорът е НЕ и влакът изобщо не влезе в кръга! Промени проверката.','warn');
+      if(g5&&g5.S===15) return say(boxA,'🤔 При n = 5 се получи S = 15, но опитай наум с n = 3: проверката „'+esc(c)+'“ не зависи правилно от n. Маршрутът трябва да работи за <b>всяко</b> n (масовост) – сравни i с <b>n</b>.','warn');
+      return say(boxA,'🤨 S = '+fmt(s)+', а 1 + 2 + … + '+fmt(n)+' = '+fmt(n*(n+1)/2)+'. Кога точно кръгът трябва да продължава? Докато броячът i още не е надминал n.','warn'); }
+    if(n!==5) return say(boxA,'✅ S = <b>'+fmt(s)+'</b> – маршрутът работи. Сега върни n = 5, за да провериш прогнозата си.');
+    const pd=parseInt(D.pred,10);
+    say(boxA,'✅ S = <b>'+fmt(s)+'</b>. Виж значката ×'+pass+' върху работилниците в кръга: при n = 5 влакът мина през тях <b>'+pass+' пъти</b>. '+(pd===pass?'Прогнозата ти беше точна! ':'Ти предположи '+esc(D.pred)+' – брояч i започва от 1 и обикаля за i = 1, 2, 3, 4, 5; при i = 6 проверката дава НЕ. ')+'Повтарящите се команди (S = S + i и i = i + 1) са <b>тялото на цикъла</b>, а проверката се прави '+(pass+1)+' пъти (последната дава НЕ).');
+    if(!D.a){ D.a=true; save(); } note('cyclic'); showB(); }
+  bLay.onclick=lay;
+  if(D.cond&&D.pred){ rA=Runner(hA,{prog:SUMW(D.cond),inputs:{n:5},speed:380,onDone:onA}); } else emptyChart();
+  function showB(){ if(partB.childNodes.length) return;
+    partB.appendChild(el('h3',{},'Кръг Б – със специални блокове за цикъл'));
+    partB.appendChild(el('p',{class:'small'},'Същият алгоритъм, но с блок за начало на цикъл (брояч i от 1 до n) и блок за край на цикъл, където е зададена стъпката. Пусни го.'));
+    const hB=el('div'); partB.appendChild(hB); const boxB=sayBox(partB);
+    Runner(hB,{prog:SUMF(),inputs:{n:5},speed:380,onDone:r=>{ if(!r.ok) return say(boxB,'💥 '+esc(r.err||''),'warn'); say(boxB,'✅ Отново S = <b>'+fmt(r.vars.S)+'</b>, а тялото (S = S + i) се изпълни '+(r.visits['b4']||0)+' пъти. Тук не пишем сами „i = i + 1“ – блокът за край на цикъла го прави.'); if(!D.b){ D.b=true; save(); } note('twoloops'); showC(); }});
+    if(D.b) showC(); }
+  function showC(){ if(partC.childNodes.length) return; let sel=null;
+    partC.appendChild(el('h3',{},'Разпределителната гара'));
+    partC.appendChild(el('p',{},'Пет вагона с алгоритми от живота чакат да ги пратиш на коловоз. Избери вагон, после коловоз. Няма „грешен“ коловоз – само различни гледни точки; диспечерът ще ти каже своята.'));
+    const cars=el('div',{class:'cars'}); partC.appendChild(cars); const yard=el('div',{class:'yard'}); partC.appendChild(yard); const boxC=sayBox(partC);
+    const TR={l:'Линеен',b:'Разклонен',c:'Цикличен'};
+    const CS=shuffleOnce('cars',CARS);
+    function dr(){ cars.innerHTML=''; CS.filter(c=>!D.sort[c.id]).forEach(c=>{ const b=el('button',{class:'car'+(sel===c.id?' sel':''),'data-w':c.id},esc(c.t)); b.onclick=()=>{ sel=c.id; dr(); }; cars.appendChild(b); });
+      if(!CARS.some(c=>!D.sort[c.id])) cars.innerHTML='<span class="small">Всички вагони са разпределени. С бутона ✕ можеш да върнеш вагон и да го пратиш другаде.</span>';
+      yard.innerHTML=''; Object.keys(TR).forEach(k=>{ const t=el('div',{class:'trk','data-k':k,role:'button',tabindex:'0'},'<h4>'+TR[k]+'</h4>'); CARS.filter(c=>D.sort[c.id]===k).forEach(c=>{ const w=el('div',{class:'wagon'},esc(c.t)+' '); const x=el('button',{class:'wx',title:'Върни вагона'},'✕'); x.onclick=(e)=>{ e.stopPropagation(); delete D.sort[c.id]; save(); dr(); }; w.appendChild(x); t.appendChild(w); }); t.onclick=()=>{ if(!sel) return say(boxC,'Първо избери вагон.','warn'); const c=CARS.find(x=>x.id===sel); D.sort[sel]=k; save(); sel=null; say(boxC,(c.m===k?'👍 ':'💬 ')+'<b>'+esc(c.t)+' → '+TR[k]+'.</b> '+c.c[k]); dr(); if(CARS.every(x=>D.sort[x.id])){ note('vidove'); done(); } }; yard.appendChild(t); }); }
+    dr(); if(CARS.every(x=>D.sort[x.id])) done(); }
+  if(D.a) showB();
+};
+
+/* ===================== 8. МОЯТ МАКЕТ ===================== */
+const TPL={
+ swap:{t:'Размяна на две променливи',i:{a:5,b:9},
+  d:'Дадени са две числа <b>a</b> и <b>b</b>. Построй маршрут, след който <b>a</b> съдържа старата стойност на b, а <b>b</b> – старата стойност на a. Накрая влакът разтоварва първо a, после b.',
+  tests:[{i:{a:5,b:9},o:v=>[v.b,v.a]},{i:{a:-2,b:7},o:v=>[v.b,v.a]},{i:{a:3,b:3},o:v=>[v.b,v.a]}],
+  h:['Когато запишеш b в a, старата стойност на a се губи. Къде можеш да я запазиш предварително?','Пусни влака със „Стъпка“ и следи вагоните: в кой момент една от стойностите изчезва?']},
+ avg:{t:'Средно аритметично на три числа',i:{a:6,b:5,c:4},
+  d:'Дадени са три числа <b>a</b>, <b>b</b> и <b>c</b>. Построй маршрут, който намира тяхното <b>средно аритметично</b> и го разтоварва.',
+  tests:[{i:{a:6,b:5,c:4},o:v=>[(v.a+v.b+v.c)/3]},{i:{a:1,b:2,c:4},o:v=>[(v.a+v.b+v.c)/3]},{i:{a:10,b:10,c:10},o:v=>[(v.a+v.b+v.c)/3]}],
+  h:['Сумата на трите числа се дели на броя им. Внимавай с реда на действията – къде са нужни скоби?','Пусни влака със „Стъпка“ и сравни вагона на резултата със сметката си на ръка.']},
+ max2:{t:'По-голямото от две числа',i:{a:7,b:12},
+  d:'Дадени са две числа <b>a</b> и <b>b</b>. Построй маршрут, който разтоварва <b>по-голямото</b> от тях.',
+  tests:[{i:{a:7,b:12},o:v=>[Math.max(v.a,v.b)]},{i:{a:9,b:4},o:v=>[Math.max(v.a,v.b)]},{i:{a:5,b:5},o:v=>[Math.max(v.a,v.b)]}],
+  h:['Тук влакът трябва да избира между два пътя. Кой знак разклонява пътя и какво трябва да пише в него?','По линията ДА и по линията НЕ влакът разтоварва различно нещо. Какво трябва да е то във всеки от случаите? Пробвай и с равни числа.']},
+ fact:{t:'Произведение 1 · 2 · … · n',i:{n:5},
+  d:'Дадено е естествено число <b>n</b>. Построй маршрут, който намира произведението <b>1 · 2 · … · n</b> и го разтоварва.',
+  tests:[{i:{n:5},o:v=>[120]},{i:{n:1},o:v=>[1]},{i:{n:7},o:v=>[5040]}],
+  h:['Едно и също умножение се повтаря много пъти. Кой знак връща влака по същите релси? С каква стойност започва произведението – ако започне с 0, какво ще излезе?','Броячът трябва да мине през всички числа от 1 до n. Пусни влака със „Стъпка“ за n = 3 и следи вагоните.']},
+ sub:{t:'Докато a ≠ b – изваждай',i:{a:5,b:14},
+  d:'Дадени са две естествени числа <b>a</b> и <b>b</b>. Построй маршрут, който намира техния <b>най-голям общ делител</b> по метода на изваждането: докато числата не са равни, от по-голямото се изважда по-малкото. Когато станат равни, това число е отговорът и влакът го разтоварва.',
+  tests:[{i:{a:5,b:14},o:v=>[1]},{i:{a:12,b:18},o:v=>[6]},{i:{a:9,b:9},o:v=>[9]},{i:{a:21,b:6},o:v=>[3]}],
+  h:['Влакът трябва да се върти, докато числата станат равни. Кое условие пази кръга?','Във всяка обиколка се променя само едно от числата. Как влакът ще разбере кое?']},
+ blank:{t:'Празен макет – моя собствена идея',i:{},
+  d:'Измисли свой алгоритъм – например лице на правоъгълник, периметър, четно ли е числото. Построй го от нулата. Тук няма автоматична проверка: пускай влака с различни стойности и сам прецени дали маршрутът работи.'}};
+const ADD=[['in','📦 Вход',()=>N('in','x')],['proc','🔧 Работилница',()=>N('proc','y = x * 2')],['out','📤 Изход',()=>N('out','y')],['if','🔀 Стрелка',()=>N('if','x > 0',{yes:[],no:[]})],['while','🔁 Кръг с условие',()=>N('while','x > 0',{body:[]})],['for','🔄 Кръг с брояч',()=>N('for','',{v:'i',a:'1',b:'5',s:'1',body:[]})],['sub','🚇 Тунел',()=>N('sub','Подалгоритъм')]];
+R.maket=function(st){ const D=S.d.s8; D.progs=D.progs||{}; D.solved=D.solved||{}; D.tries=D.tries||{};
+  head(st,'Гара 8 · Моят макет','Построй собствен маршрут и го запази');
+  op(st,'Последната гара е твоя. Избери <b>коя блок-схема искаш да построиш</b>. Готово решение няма: на макета са само Начало и Край, а релсите между тях ги полагаш ти – добавяш блокове с бутона ＋, пишеш в тях и ги подреждаш. Пусни влака с товарителниците и когато маршрутът е готов, натисни <b>„Провери маршрута“</b>. Накрая <b>дай име на маршрута</b> и го запази като картинка.');
+  const tp=el('div',{class:'tpls'}); st.appendChild(tp);
+  const task=el('div',{class:'task',style:'display:none;background:#fff8e1;border:2px dashed #c9a227;border-radius:12px;padding:12px 14px;margin:10px 0;color:#1d1a10'}); st.appendChild(task);
+  const fT=el('label',{class:'fld'},'<span>Име на маршрута</span>'); const iT=el('input',{type:'text',id:'mkTitle',maxlength:'50',placeholder:'напр. Моят маршрут'}); iT.value=D.title||''; fT.appendChild(iT); st.appendChild(fT);
+  const two=el('div',{class:'two'}); st.appendChild(two); const L=el('div'), Rt=el('div'); two.append(L,Rt);
+  L.appendChild(el('div',{class:'small'},'Редактор на релсите (текстът в блоковете е това, което влакът изпълнява):')); const ed=el('div',{id:'ed'}); L.appendChild(ed);
+  L.appendChild(el('div',{class:'small',style:'margin-top:10px'},'Същият маршрут като псевдокод:')); const ps=el('div',{class:'pseudo',id:'ps'}); L.appendChild(ps);
+  const host=el('div'); Rt.appendChild(host); const ckRow=el('div',{class:'row',style:'margin:10px 0;display:none'}); const bCk=el('button',{class:'btn',id:'mkCheck'},'✅ Провери маршрута'); ckRow.appendChild(bCk); Rt.appendChild(ckRow); const box=sayBox(Rt);
+  const fin=el('div',{class:'row'}); const bDl=el('button',{class:'btn red',id:'dlFinal'},'⬇ Изтегли моя макет (PNG)'); const why=el('span',{class:'small',id:'dlWhy'}); fin.append(bDl,why); st.appendChild(fin);
+  st.appendChild(el('p',{class:'small'},'Картинката съдържа блок-схемата, псевдокода и легендата на знаците. Файлът се казва <span class="mono">Moyat_zhelezopaten_maket.png</span>.'));
+  const cv=el('canvas',{class:'out',width:'1200',height:'900',style:'margin-top:12px'}); st.appendChild(cv);
+  let runner=null, tmr=null;
+  const BLANK=()=>[N('start'),N('end')];
+  function drawChips(){ tp.innerHTML=''; Object.keys(TPL).forEach(k=>{ const b=el('button',{class:'chip'+(D.tpl===k?' on':''),'data-t':k},(D.solved[k]?'✔ ':'')+TPL[k].t); b.onclick=()=>{ if(D.tpl&&D.prog) D.progs[D.tpl]=clone(D.prog); D.tpl=k; D.prog=D.progs[k]?clone(D.progs[k]):BLANK(); save(); box.className='say'; box.innerHTML=''; drawChips(); drawTask(); edit(); refresh(true,TPL[k].i); ready(); }; tp.appendChild(b); }); }
+  function drawTask(){ const T=TPL[D.tpl]; if(!T){ task.style.display='none'; ckRow.style.display='none'; return; } task.style.display=''; task.innerHTML='<b>📋 Поръчка:</b> '+T.d; ckRow.style.display=T.tests?'':'none';
+    if(T.tests){ const tk=el('div',{class:'row',style:'margin-top:8px;gap:6px'}); tk.appendChild(el('span',{class:'small',style:'align-self:center'},'Товарителници:')); T.tests.forEach(t=>{ const lab=Object.keys(t.i).map(k=>k+'='+t.i[k]).join(', '); const b=el('button',{class:'ticket'},esc(lab)); b.onclick=()=>{ if(runner){ runner.setInputs(t.i); runner.run(); } }; tk.appendChild(b); }); task.appendChild(tk); } }
+  function descr(i){ return Object.keys(i).map(k=>esc(k)+' = '+i[k]).join(', '); }
+  function allBlocks(L,o){ L.forEach(n=>{ o.push(n); if(n.yes) allBlocks(n.yes,o); if(n.no) allBlocks(n.no,o); if(n.body) allBlocks(n.body,o); }); return o; }
+  function check(){ const k=D.tpl, T=TPL[k]; if(!T||!T.tests||!D.prog) return;
+    const bl=allBlocks(D.prog,[]); const has=t=>bl.some(n=>n.t===t);
+    if(bl.length<=2) return say(box,'Релсите още са празни – между Начало и Край няма нито един блок. Добави първия с бутона ＋.','warn');
+    const need=Object.keys(T.tests[0].i), have=inVars(D.prog);
+    if(!has('in')||need.some(v=>!have.includes(v))) return say(box,'Влакът още не знае с какъв товар тръгва. Товарният перон трябва да приеме: <b>'+esc(need.join(', '))+'</b>.','warn');
+    if(!has('out')) return say(box,'На крайната гара не се разтоварва нищо. Кой знак показва резултата?','warn');
+    let bad=null, okc=0;
+    for(const t of T.tests){ let res=null; const rn=Runner(document.createElement('div'),{prog:clone(D.prog),inputs:Object.assign({},t.i),onDone:r=>{ res=r; }}); rn.fastRun();
+      const exp=t.o(t.i).map(fmt);
+      if(!res){ bad={t,why:'run'}; break; }
+      if(!res.ok){ bad={t,why:'err',res}; break; }
+      const got=res.out.join(' ').split(/\s+/).filter(Boolean);
+      if(got.join('|')!==exp.join('|')){ bad={t,why:'val',got,exp}; break; }
+      okc++; }
+    if(!bad){ D.solved[k]=true; save(); drawChips(); ready(); confetti(40); note('maket'); return say(box,'🏁 Всички <b>'+T.tests.length+' товарителници</b> минаха успешно – маршрутът ти е верен! Дай му име и го запази като картинка.'); }
+    D.solved[k]=false; D.tries[k]=(D.tries[k]||0)+1; save(); drawChips(); ready();
+    let m;
+    if(bad.why==='run') m='Влакът не можа да потегли – блокът за вход иска стойности, които не са в товарителницата.';
+    else if(bad.why==='err') m=(bad.res.err==='limit'?'🛑 Влакът не спира при товарителница <b>'+descr(bad.t.i)+'</b>. Кога цикълът трябва да свърши?':'💥 Влакът дерайлира при товарителница <b>'+descr(bad.t.i)+'</b>: '+esc(bad.res.err||'грешка'));
+    else m='Влакът пристигна, но разтовари грешен товар при <b>'+descr(bad.t.i)+'</b>: получи се <b>'+esc(bad.got.join(', ')||'нищо')+'</b>, а се очакваше <b>'+esc(bad.exp.join(', '))+'</b>.';
+    m+=' (Минали товарителници: '+okc+' от '+T.tests.length+'.)';
+    const tr=D.tries[k]; if(tr>=2&&T.h) m+='<br>💡 Подсказка: '+T.h[Math.min(tr-2,T.h.length-1)];
+    say(box,m,'warn'); }
+  bCk.onclick=check;
+  drawChips(); drawTask();
+  iT.oninput=()=>{ D.title=iT.value; save(); if(D.prog) paint(); ready(); };
+  function ready(){ const T=TPL[D.tpl]; let msg='';
+    if(!D.prog) msg='Първо избери коя блок-схема ще строиш (горе).';
+    else if(T&&T.tests&&!D.solved[D.tpl]) msg='Първо построй маршрута и натисни „Провери маршрута“ – трябва да мине всички товарителници.';
+    else if(!(T&&T.tests)&&allBlocks(D.prog,[]).length<=2) msg='Добави поне един блок между Начало и Край.';
+    else if(!String(D.title||'').trim()) msg='Напиши име на маршрута – картинката е твоя.';
+    const ok=!msg; bDl.disabled=!ok; why.textContent=msg; if(ok&&!S.done.maket){ S.done.maket=true; save(); nav(); } }
+  function edit(){ ed.innerHTML=''; if(!D.prog){ ed.appendChild(el('p',{class:'small'},'🛤 Още няма релси – избери коя блок-схема ще строиш (горе).')); return; } ed.appendChild(list(D.prog,true)); }
+  function list(arr,root){ const w=el('div',{class:root?'blkw':'ol'});
+    const plus=(idx)=>{ const p=el('button',{class:'plus',title:'Добави блок тук'},'＋'); p.onclick=()=>{ const pal=el('div',{class:'pal'}); ADD.forEach(([t,lab,mk])=>{ const b=el('button',{},lab); b.onclick=()=>{ arr.splice(idx,0,mk()); changed(true); }; pal.appendChild(b); }); const x=el('button',{},'✕'); x.onclick=()=>pal.replaceWith(p); pal.appendChild(x); p.replaceWith(pal); }; return p; };
+    if(!root) w.appendChild(plus(0));
+    arr.forEach((n,i)=>{ const r=el('div',{class:'on'}); r.innerHTML='<svg class="ic" viewBox="0 0 92 40">'+miniShape(SHAPE[n.t]).replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'')+'</svg>';
+      if(n.t==='start'||n.t==='end'){ r.appendChild(el('span',{class:'fx'},n.t==='start'?'Начало':'Край')); }
+      else if(n.t==='for'){ r.appendChild(el('span',{class:'fx'},'брояч')); [['v','i'],['a','от'],['b','до'],['s','стъпка']].forEach(([k,lab])=>{ if(k!=='v') r.appendChild(el('span',{class:'fx'},lab)); const inp=el('input',{type:'text',class:'sm',value:n[k]}); inp.oninput=()=>{ n[k]=inp.value; changed(false); }; r.appendChild(inp); }); }
+      else { if(n.t==='in') r.appendChild(el('span',{class:'fx'},'Вход:')); if(n.t==='out') r.appendChild(el('span',{class:'fx'},'Изход:')); const inp=el('input',{type:'text',value:n.x}); inp.oninput=()=>{ n.x=inp.value; changed(false); }; r.appendChild(inp); if(n.t==='if'||n.t==='while') r.appendChild(el('span',{class:'fx'},'?')); }
+      if(n.t!=='start'&&n.t!=='end'){ const lo=root?1:0, hi=root?arr.length-2:arr.length-1;
+        const up=el('button',{class:'mb',title:'Нагоре'},'↑'); up.onclick=()=>{ if(i>lo){ arr.splice(i-1,0,arr.splice(i,1)[0]); changed(true); } };
+        const dn=el('button',{class:'mb',title:'Надолу'},'↓'); dn.onclick=()=>{ if(i<hi){ arr.splice(i+1,0,arr.splice(i,1)[0]); changed(true); } };
+        const x=el('button',{class:'mb',title:'Махни'},'✕'); x.onclick=()=>{ arr.splice(i,1); changed(true); }; r.append(up,dn,x); }
+      w.appendChild(r);
+      if(n.t==='if'){ w.appendChild(el('span',{class:'brl'},'ДА →')); w.appendChild(list(n.yes)); w.appendChild(el('span',{class:'brl'},'НЕ →')); w.appendChild(list(n.no)); }
+      if(n.t==='while'||n.t==='for'){ w.appendChild(el('span',{class:'brl'},n.t==='while'?'тяло (докато е ДА) →':'тяло на цикъла →')); w.appendChild(list(n.body)); }
+      if(!(root&&n.t==='end')) w.appendChild(plus(i+1)); });
+    return w; }
+  function changed(struct){ if(D.solved&&D.solved[D.tpl]){ D.solved[D.tpl]=false; drawChips(); ready(); } save(); if(struct) edit(); clearTimeout(tmr); tmr=later(()=>refresh(false),350); }
+  function refresh(first,inp){ if(!D.prog){ ps.textContent='—'; return; } ps.textContent=pseudo(D.prog); if(!runner) runner=Runner(host,{prog:clone(D.prog),inputs:inp||TPL[D.tpl]&&TPL[D.tpl].i||{},onDone:r=>{ if(r.ok){ say(box,'🏁 Влакът стигна крайната гара'+(r.out.length?' и разтовари: <b>'+esc(r.out.join(' / '))+'</b>':'')+(TPL[D.tpl]&&TPL[D.tpl].tests?'. Провери дали е верен с „Провери маршрута“.':'. Маршрутът работи!')); note('maket'); } else say(box,'💥 '+esc(r.err||'Влакът спря.')+' Поправи блока, пусни пак.','warn'); }}); else { runner.setProg(clone(D.prog)); if(inp) runner.setInputs(inp); } paint(); }
+  function paint(){ if(!D.prog) return; cv.style.display=''; const x=cv.getContext('2d'); const W=1200; const ch=layout(clone(D.prog)); const sc=Math.min(1.35,700/ch.W); const fh=ch.H*sc; const PS=pseudo(D.prog).split('\n');
+    const H=Math.max(760,190+Math.max(fh,PS.length*22+330)+60); cv.height=H;
+    x.fillStyle='#1c3a29'; x.fillRect(0,0,W,H); x.fillStyle='#fbf6e8'; rr(x,24,24,W-48,H-48,18); x.fill();
+    x.fillStyle='#14284a'; x.fillRect(24,24,W-48,92); x.fillStyle='#f2b632'; x.fillRect(24,116,W-48,6);
+    x.fillStyle='#f4efe1'; x.font='800 15px "Arial Narrow",Arial'; x.fillText('ЖЕЛЕЗОПЪТЕН МАКЕТ „ХОРЕЗМИ“ · ПЛАН НА МАРШРУТ',48,56);
+    x.font='800 30px "Arial Narrow","Segoe UI",Arial'; x.fillStyle='#fff'; x.fillText((D.title||'Моят маршрут').slice(0,60),48,96);
+    x.textAlign='right'; x.font='16px "Segoe UI",Arial'; x.fillStyle='#f4efe1'; x.fillText('Проектант: '+(S.name||'стрелочник'),W-48,56); x.fillText(new Date().toLocaleDateString('bg-BG'),W-48,96); x.textAlign='left';
+    x.fillStyle='#eaf1ec'; rr(x,44,140,720,H-200,12); x.fill(); drawChartCanvas(x,clone(D.prog),44+Math.max(0,(720-ch.W*sc)/2),146,700);
+    const px=790; x.fillStyle='#14284a'; rr(x,px,140,W-px-44,PS.length*22+56,12); x.fill(); x.fillStyle='#f2b632'; x.font='800 15px "Arial Narrow",Arial'; x.fillText('ПСЕВДОКОД',px+16,166); x.fillStyle='#e9f0ff'; x.font='15px Consolas,"Courier New",monospace'; PS.forEach((l,i)=>{ x.fillText(l.length>38?l.slice(0,37)+'…':l,px+16,192+i*22); });
+    let ly=140+PS.length*22+80; x.fillStyle='#14284a'; x.font='800 15px "Arial Narrow",Arial'; x.fillText('ЛЕГЕНДА НА ЗНАЦИТЕ',px,ly); ly+=12;
+    [['term','Начало / край (гара)'],['para','Вход / изход (перон)'],['rect','Обработка (работилница)'],['dia','Условие (стрелка ДА/НЕ)'],['sub','Подалгоритъм (тунел)'],['lb','Начало на цикъл'],['le','Край на цикъл']].forEach(([s,t],i)=>{ const yy=ly+i*34; const P=new Path2D(shapeD(s,px+34,yy,60,s==='dia'?28:24)); x.fillStyle=FILL[s]; x.fill(P); x.strokeStyle='#1d2430'; x.lineWidth=1.5; x.stroke(P); x.fillStyle='#1d2430'; x.font='15px "Segoe UI",Arial'; x.fillText(t,px+74,yy+18); });
+    x.fillStyle='#5a6170'; x.font='14px "Segoe UI",Arial'; x.fillText('Информационни технологии · 10. клас · Урок 4 „Алгоритъм“',48,H-40); }
+  bDl.onclick=()=>{ if(bDl.disabled||!D.prog) return; paint(); note('maket'); dlCanvas(cv,'Moyat_zhelezopaten_maket.png'); autoReset([{label:'Изтегли и псевдокода (.txt)',fn:()=>dlText((D.title||'Моят маршрут')+'\n\n'+pseudo(D.prog)+'\n','Moyat_maket_psevdokod.txt')}]); };
+  edit(); refresh(true,TPL[D.tpl]&&TPL[D.tpl].i); ready();
+  if(!D.prog) cv.style.display='none';
+};
+
+init();
+})();
+</script>
+
+
+</body></html>
